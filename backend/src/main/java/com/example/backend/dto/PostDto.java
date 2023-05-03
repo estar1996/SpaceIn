@@ -36,6 +36,7 @@ public class PostDto {
         Post post = Post.builder()
                 .user(user)
                 .postContent(postContent)
+                .postImage(postImage)
                 .postLatitude(postLatitude)
                 .postLongitude(postLongitude)
                 .postDate(postDate)
