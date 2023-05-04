@@ -4,6 +4,7 @@ import com.example.backend.domain.Comment;
 import com.example.backend.domain.Post;
 import com.example.backend.domain.User;
 import com.example.backend.dto.CommentDto;
+import com.example.backend.dto.CommentResponseDto;
 import com.example.backend.repository.CommentRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.Id;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -42,5 +45,17 @@ public class CommentService {
                 build();
         commentRepository.save(comment);
 
+    }
+
+    public List<CommentResponseDto> getCommentList(Long postId) {
+        List<Comment> commentList = commentRepository.findAllByPostId(postId);
+        List<CommentResponseDto> postCommnetList = commentList.stream()
+                .map(r -> new CommentResponseDto(r))
+                .collect(Collectors.toList());
+        return postCommnetList;
+    }
+
+    public void deleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
     }
 }
