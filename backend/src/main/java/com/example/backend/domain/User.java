@@ -1,9 +1,6 @@
 package com.example.backend.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,10 +9,11 @@ import java.util.List;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long Id;
     @Column(nullable = false)
     private String username;
     @Column(nullable = false)
@@ -24,7 +22,7 @@ public class User {
     private String userPassword;
     @Column(nullable = false)
     private Integer userValid;
-    @Column
+    @Column(columnDefinition = "VARCHAR(255)")
     private String userImg;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Item> userItems;
@@ -40,5 +38,6 @@ public class User {
     @Column(nullable = false)
     private Integer userMoney;
 
-    private Boolean userAdmin;
+    private Integer userAdmin;
+
 }
