@@ -26,7 +26,7 @@ public class JwtTokenProvider {
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = secretKey.getBytes(); // 새로 적은 코드
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        System.out.println("key:"+this.key);
+        System.out.println("key:"+this.key); // 키 확인을 위한 코드(추후 삭제할 것)
     }
 
     //인증 정보 받아오기(token에서 auth의 value를 가져와서 확인)
@@ -66,13 +66,27 @@ public class JwtTokenProvider {
         return false;
     }
 
-    private Claims parseClaims(String accessToken) {
-        try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
+    private Claims parseClaims (String accessToken){
+            try {
+                return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+            } catch (ExpiredJwtException e) {
+                return e.getClaims();
+            }
         }
+    public boolean isExpired(String token){
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            // access token이 유효한 경우에 대한 처리
+        } catch (ExpiredJwtException e) {
+            // access token이 만료된 경우에 대한 처리
+            return true;
+        } catch (JwtException e) {
+            // 그 외 다른 예외에 대한 처리
+            // 예를 들어, 암호화된 데이터 복호화 실패 등의 경우
+        }
+        return false;
     }
 
-
 }
+
+

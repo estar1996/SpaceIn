@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/hello/start").authenticated() // /Hello/start로 전송되는 요청 중, POST 요청은 인증된 사용자만 가능하도록 한다.
                 .antMatchers("/login/oauth2/code/google").permitAll()
-//                .antMatchers("/membermenu/1").permitAll()
+                .antMatchers("/user/updatetoken").permitAll()
 //                .antMatchers("/members/test").hasRole("USER")
                 .anyRequest().permitAll()
                 .and()
@@ -39,9 +39,8 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
+    @Bean //이건 어디에 쓰려고 만든건지 잘 기억이 나지 않음
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
-
 }

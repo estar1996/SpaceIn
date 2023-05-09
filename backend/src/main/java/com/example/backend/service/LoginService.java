@@ -1,16 +1,18 @@
 package com.example.backend.service;
 
-import com.example.backend.domain.User;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.domain.RefreshToken;
+import com.example.backend.repository.RefreshTokenRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -26,6 +28,12 @@ public class LoginService {
 
     @Value("${jwt.expiration}")
     private Long expirationTime;
+
+    @Value("${jwt.refresh.expiration}")
+    private Long refreshExpirationTime;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
 
     private final Environment env;
@@ -82,21 +90,35 @@ public class LoginService {
     }
 
     //토큰을 생성하는 코드
-    public String generateToken(String id, String email, String nickname, String roles) {
+    public String generateToken(String email, String roles) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationTime);
 
         JwtBuilder builder = Jwts.builder()
-                .setId(id)
                 .setSubject(email)
-                .setIssuer(nickname)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .claim("roles", roles)
-                .claim("auth", "MEMBER")
+                .claim("auth", "MEMBER") // 추후 admin이 생길 경우 수정
                 .signWith(SignatureAlgorithm.HS256, secretKey.getBytes());
 
         return builder.compact();
+    }
+
+    public String generateRefreshToken(String email) { //해당 코드에 findbyemail로 코드삭제 하는거만 하면됨
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + refreshExpirationTime);
+
+        JwtBuilder builder = Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiration)
+                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes());
+
+        String token = builder.compact();
+        saveRefreshToken(email, token);
+
+        return token;
     }
 
     public Claims getClaimsFromToken(String token) {
@@ -105,9 +127,18 @@ public class LoginService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+    public void saveRefreshToken(String email, String token) { //토큰 저자
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setEmail(email);
+        refreshToken.setToken(token);
+        refreshTokenRepository.saveToken(email, token, refreshExpirationTime);
+    }
 
-
-
+    @Transactional //트랜젝션? 더 알아보자.
+    public void deleteRefreshToken(String email){
+        refreshTokenRepository.deleteByEmail(email);
+        System.out.println("Loginservice.java에서 성공적으로 삭제:"+ email);
+    }
 
 
 
