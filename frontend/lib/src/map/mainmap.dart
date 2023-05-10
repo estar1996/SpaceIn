@@ -89,12 +89,11 @@ class _MainMapState extends State<MainMap> {
     // 내 위치 기반 원 그리기
     if (_currentPosition != null) {
       final circleOverlay = NCircleOverlay(
-        id: "current",
-        center:
-            NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-        radius: 300,
-        color: Colors.blue.withOpacity(0.2),
-      );
+          id: "current",
+          center:
+              NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          radius: 300,
+          color: const Color(0xFF9479CD).withOpacity(0.2));
       _controller?.addOverlay(circleOverlay); // 변수 뒤에 ?를 붙여줍니다.
     }
 
@@ -216,10 +215,6 @@ class _MainMapState extends State<MainMap> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
       ),
     );
   }

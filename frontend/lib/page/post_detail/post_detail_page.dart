@@ -23,7 +23,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    PageController _pageController = PageController(initialPage: 0);
+    PageController pageController = PageController(initialPage: 0);
     List lst = [
       {
         'name': '양',
@@ -80,7 +80,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         //   },
         // ),
         child: PageView(
-          controller: _pageController,
+          controller: pageController,
           scrollDirection: Axis.vertical,
           children: lst.map(
             (e) {
@@ -99,21 +99,21 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         children: [
                           Text(
                             e["text"],
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 20,
                           ),
                           Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
-                              color: Color.fromRGBO(30, 30, 30, 0.5),
+                              color: const Color.fromRGBO(30, 30, 30, 0.5),
                             ),
-                            padding: EdgeInsets.fromLTRB(6, 2, 6, 2),
+                            padding: const EdgeInsets.fromLTRB(6, 2, 6, 2),
                             // color: Colors.grey,
                             child: Text(
                               e['name'],
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                             ),
                           )
                         ],
@@ -145,7 +145,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     return InkWell(
       onTap: () {
         showModalBottomSheet(
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -153,13 +153,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
           ),
           isScrollControlled: true,
           context: context,
-          builder: (context) => CommentModal(),
+          builder: (context) => const CommentModal(),
         );
       },
       child: Container(
         padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
-        child: const Column(
-          children: [
+        child: Column(
+          children: const [
             Icon(
               Icons.chat_bubble_rounded,
               color: Colors.white,
@@ -181,9 +181,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
   Widget LikeCount() {
     return Container(
       // decoration: BoxDecoration(color: Colors.blue),
-      padding: EdgeInsets.fromLTRB(20, 15, 20, 10),
-      child: const Column(
-        children: [
+      padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
+      child: Column(
+        children: const [
           Icon(
             Icons.favorite_rounded,
             color: Colors.white,

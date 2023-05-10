@@ -11,19 +11,19 @@ class ProfilePage extends StatelessWidget {
     return Background(
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 30),
+          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
           child: Column(
             children: [
               Row(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(left: 30),
+                    padding: const EdgeInsets.only(left: 30),
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Row(children: [
                             NameText(),
-                            InkWell(
+                            const InkWell(
                                 child: Icon(
                               Icons.settings_rounded,
                               color: Colors.white,
@@ -43,7 +43,8 @@ class ProfilePage extends StatelessWidget {
                                     RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Colors.white)),
+                                        side: const BorderSide(
+                                            color: Colors.white)),
                                   ),
                                 ),
                                 onPressed: () => {
@@ -55,7 +56,7 @@ class ProfilePage extends StatelessWidget {
                                     ),
                                   ),
                                 },
-                                child: const Row(children: [
+                                child: Row(children: const [
                                   Icon(
                                     Icons.shopping_bag_rounded,
                                     color: Colors.white,
@@ -84,12 +85,12 @@ class ProfilePage extends StatelessWidget {
 
   Widget ProfileImg() {
     return Container(
-      margin: EdgeInsets.all(5),
+      margin: const EdgeInsets.all(5),
       width: 90,
       height: 90,
       decoration: BoxDecoration(
         color: Colors.white,
-        image: DecorationImage(
+        image: const DecorationImage(
           fit: BoxFit.cover,
           image: AssetImage('assets/Planet-8.png'),
         ),
@@ -110,13 +111,13 @@ class ProfilePage extends StatelessWidget {
   // }
 
   Widget NameText() {
-    return Text(
+    return const Text(
       '우주인',
       style: TextStyle(fontSize: 20),
     );
   }
 
   Widget StarCount() {
-    return Text('✨200');
+    return const Text('✨200');
   }
 }

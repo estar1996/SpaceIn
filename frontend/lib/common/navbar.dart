@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/common/colors.dart';
 import 'package:frontend/page/homepage/home_page.dart';
 import 'package:frontend/page/profile/profile_page.dart';
+import 'package:frontend/src/map/mainmap.dart';
+import 'package:frontend/page/shop/shop_page.dart';
 
 class NavBar extends StatefulWidget {
   final int index;
@@ -14,10 +16,10 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   late int currentIndex = widget.index;
   final screens = [
-    HomePage(),
-    HomePage(),
-    HomePage(),
-    ProfilePage(),
+    const HomePage(),
+    const MainMap(),
+    const ShopPage(),
+    const ProfilePage(),
     // LoginPage(),
     // PostPage(),
     // ProfilePage(),
@@ -64,7 +66,7 @@ class _NavBarState extends State<NavBar> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 10,
-        child: Container(
+        child: SizedBox(
           height: 60,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,7 +79,8 @@ class _NavBarState extends State<NavBar> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()),
                       );
                     },
                     child: Column(

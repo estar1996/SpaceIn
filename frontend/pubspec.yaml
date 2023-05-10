@@ -40,6 +40,8 @@ dependencies:
   geolocator: ^9.0.2
   flutter_dotenv: ^5.0.2
   dio: ^5.1.2
+  page_indicator: ^0.4.1
+  carousel_indicator: ^1.0.6
 
 dev_dependencies:
   flutter_test:

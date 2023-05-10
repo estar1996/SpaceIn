@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () async {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => NavBar(index: 1),
+                      builder: (context) => const NavBar(index: 2),
                     ),
                   );
                 },
@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () async {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => NavBar(index: 3),
+                      builder: (context) => const NavBar(index: 3),
                     ),
                   );
                 },
@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () async {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => NavBar(index: 1),
+                      builder: (context) => const NavBar(index: 1),
                     ),
                   );
                 },
