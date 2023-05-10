@@ -1,4 +1,4 @@
-package com.example.frontend
+package com.ssafy.spacein
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 
