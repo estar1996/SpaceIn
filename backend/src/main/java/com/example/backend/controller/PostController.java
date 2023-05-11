@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,8 +19,11 @@ public class PostController {
     @Autowired
     private PostService postService;
 
+    private S3Service s3Service
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostDto postDto) {
+    public ResponseEntity<PostResponseDto> createPost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) {
+
+        String url = S3S
         PostResponseDto newPost = postService.createPost(postDto, postDto.getUserId());
         return new ResponseEntity<>(newPost, HttpStatus.CREATED);
     }
