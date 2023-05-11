@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/common/background.dart';
 import 'package:frontend/common/navbar.dart';
+import 'package:frontend/page/post_write/post_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -77,6 +78,10 @@ class _HomePageState extends State<HomePage> {
                 icon: Image.asset('assets/Telescope.png'),
                 onPressed: () {
                   // 클릭 시 이동할 페이지
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PostPage()),
+                  );
                 },
               ),
             ),
