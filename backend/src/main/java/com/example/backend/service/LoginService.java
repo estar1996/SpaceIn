@@ -140,6 +140,4 @@ public class LoginService {
         System.out.println("Loginservice.java에서 성공적으로 삭제:"+ email);
     }
 
-
-
 }
