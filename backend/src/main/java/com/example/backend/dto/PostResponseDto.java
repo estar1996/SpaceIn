@@ -21,6 +21,9 @@ public class PostResponseDto {
 
     private String postContent;
 
+    private String postImg;
+
+
     private Double postLatitude;
 
     private Double postLongitude;
@@ -33,11 +36,18 @@ public class PostResponseDto {
     public static PostResponseDto fromEntity(Post post) {
         PostResponseDto postResponseDto = new PostResponseDto();
         postResponseDto.setPostId(post.getPostId());
-        postResponseDto.setUserId(post.getUser().getId());
-        postResponseDto.setUserNickname(post.getUser().getUserNickname());
-        postResponseDto.setRegionId(post.getRegion().getRegionId());
+
+        if (post.getUser() != null) {
+            postResponseDto.setUserId(post.getUser().getId());
+            postResponseDto.setUserNickname(post.getUser().getUserNickname());
+        }
+
+        if (post.getRegion() != null) {
+            postResponseDto.setRegionId(post.getRegion().getRegionId());
+        }
         postResponseDto.setPostContent(post.getPostContent());
         postResponseDto.setPostLatitude(post.getPostLatitude());
+        postResponseDto.setPostImg(post.getPostImage());
         postResponseDto.setPostLongitude(post.getPostLongitude());
         postResponseDto.setPostDate(post.getPostDate());
         postResponseDto.setPostLikes(post.getPostLikes());

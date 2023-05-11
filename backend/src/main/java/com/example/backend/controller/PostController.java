@@ -30,6 +30,7 @@ public class PostController {
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
+
     @GetMapping("/{id}/near")
     public ResponseEntity<List<PostResponseDto>> getNearbyPosts(@RequestParam("latitude") double userLatitude, @RequestParam("longitude") double userLongitude) {
         List<PostResponseDto> nearbyPosts = postService.getNearbyPost(userLatitude, userLongitude, 5.0);

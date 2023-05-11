@@ -1,11 +1,12 @@
 package com.example.backend.domain;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column
     private String username;
@@ -29,6 +30,7 @@ public class User {
     private Integer userValid;
     @Column
     private String userImg;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Item> userItems;
 
@@ -48,4 +50,5 @@ public class User {
     private String email;
 
     private Boolean userAdmin;
+
 }
