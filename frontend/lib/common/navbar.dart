@@ -4,6 +4,7 @@ import 'package:frontend/page/homepage/home_page.dart';
 import 'package:frontend/page/profile/profile_page.dart';
 import 'package:frontend/src/map/mainmap.dart';
 import 'package:frontend/page/shop/shop_page.dart';
+import 'package:frontend/page/post_write/post_page.dart';
 
 class NavBar extends StatefulWidget {
   final int index;
@@ -21,7 +22,7 @@ class _NavBarState extends State<NavBar> {
     const ShopPage(),
     const ProfilePage(),
     // LoginPage(),
-    // PostPage(),
+    // const PostPage(),
     // ProfilePage(),
   ];
 
@@ -56,7 +57,10 @@ class _NavBarState extends State<NavBar> {
         child: FloatingActionButton(
           elevation: 0,
           onPressed: () {
-            // ConnectHome();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PostPage()),
+            );
           },
           backgroundColor: Colors.transparent,
           child: const Icon(Icons.add),
