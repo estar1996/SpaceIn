@@ -25,6 +25,7 @@ class _MainMapState extends State<MainMap> {
   void initState() {
     super.initState();
     _gainCurrentLocation();
+    _loadMarkers();
   }
 
   void _gainCurrentLocation() async {
@@ -105,7 +106,8 @@ class _MainMapState extends State<MainMap> {
     setState(() {});
   }
 
-  void _showModal(Map<String, dynamic> item) {
+  void _showModal(List<String> contents) {
+    if (contents.isEmpty) return; // Exit if there are no contents
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -121,13 +123,14 @@ class _MainMapState extends State<MainMap> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                item['content'] ?? '', // marker의 content 보여주기
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              for (final content in contents)
+                Text(
+                  content,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
             ],
           ),
         );
@@ -140,7 +143,11 @@ class _MainMapState extends State<MainMap> {
         await rootBundle.loadString('lib/src/map/markerlist.json');
     final List<dynamic> jsonResult = json.decode(data);
 
-    final markers = jsonResult.map((item) {
+    final Map<NLatLng, List<String>> markerContents = {};
+
+    final List<NMarker> markers = [];
+
+    for (final item in jsonResult) {
       final String id = item['key'];
       final double latitude = item['latitude'];
       final double longitude = item['longitude'];
@@ -149,38 +156,100 @@ class _MainMapState extends State<MainMap> {
         'assets/Star2.png',
       );
       const markerSize = Size(40, 40);
+      final String content = item['content'];
+
+      final List<String>? existingMarkerContents = markerContents[position];
+      if (existingMarkerContents != null) {
+        existingMarkerContents.add(content);
+      } else {
+        markerContents[position] = [content];
+      }
+
       final marker = NMarker(
         id: id,
         position: position,
         icon: myMarkerIcon,
         size: markerSize,
       );
-
-      if (_currentPosition != null) {
-        final double distance = Geolocator.distanceBetween(
-          _currentPosition!.latitude,
-          _currentPosition!.longitude,
-          position.latitude,
-          position.longitude,
-        );
-
-        if (distance <= 300) {
-          // 100m 반경 이내의 마커만 필터링
-          marker.setOnTapListener((marker) {
-            // 마커를 클릭했을 때 실행할 코드
-            _showModal(item);
-          });
-        }
+      // Check if content has multiple items
+      final List<String>? markerContent = markerContents[marker.position];
+      if (markerContent != null && markerContent.length > 1) {
+        marker.setIcon(const NOverlayImage.fromAssetImage(
+          'assets/Star2_1.png',
+        ));
       }
+      markers.add(marker);
+    }
 
-      return marker;
-    }).toList();
-
-    final addableMarkers = markers.map((marker) => marker).toSet();
+    final addableMarkers = markers.toSet();
     _controller?.addOverlayAll(addableMarkers);
 
     setState(() {});
+
+    for (final marker in addableMarkers) {
+      marker.setOnTapListener((marker) {
+        final double distance = Geolocator.distanceBetween(
+          _currentPosition!.latitude,
+          _currentPosition!.longitude,
+          marker.position.latitude,
+          marker.position.longitude,
+        );
+        if (distance <= 300) {
+          final List<String>? markerContent = markerContents[marker.position];
+          if (markerContent != null) {
+            _showModal(markerContent);
+          }
+        }
+      });
+    }
   }
+
+  // Future<void> _loadMarkers() async {
+  //   final String data =
+  //       await rootBundle.loadString('lib/src/map/markerlist.json');
+  //   final List<dynamic> jsonResult = json.decode(data);
+
+  //   final markers = jsonResult.map((item) {
+  //     final String id = item['key'];
+  //     final double latitude = item['latitude'];
+  //     final double longitude = item['longitude'];
+  //     final NLatLng position = NLatLng(latitude, longitude);
+  //     const myMarkerIcon = NOverlayImage.fromAssetImage(
+  //       'assets/Star2.png',
+  //     );
+  //     const markerSize = Size(40, 40);
+  //     final marker = NMarker(
+  //       id: id,
+  //       position: position,
+  //       icon: myMarkerIcon,
+  //       size: markerSize,
+  //     );
+
+  //     if (_currentPosition != null) {
+  //       final double distance = Geolocator.distanceBetween(
+  //         _currentPosition!.latitude,
+  //         _currentPosition!.longitude,
+  //         position.latitude,
+  //         position.longitude,
+  //       );
+
+  //       if (distance <= 300) {
+  //         // 100m 반경 이내의 마커만 필터링
+  //         marker.setOnTapListener((marker) {
+  //           // 마커를 클릭했을 때 실행할 코드
+  //           _showModal(item);
+  //         });
+  //       }
+  //     }
+
+  //     return marker;
+  //   }).toList();
+
+  //   final addableMarkers = markers.map((marker) => marker).toSet();
+  //   _controller?.addOverlayAll(addableMarkers);
+
+  //   setState(() {});
+  // }
 
 //마커 추가하기
 
