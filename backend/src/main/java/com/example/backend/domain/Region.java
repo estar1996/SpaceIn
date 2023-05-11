@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Region {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "region_id")
     private Long regionId;
 

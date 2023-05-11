@@ -1,11 +1,13 @@
 package com.example.backend.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
@@ -24,7 +26,15 @@ public class Comment {
 
     private String commentText;
 
-    private LocalDate commentDate;
+    private LocalDateTime commentDate;
+
+    @Builder
+    public Comment(Post post, User user, String commentText, LocalDateTime commentDate) {
+        this.post = post;
+        this.user = user;
+        this.commentText = commentText;
+        this.commentDate = commentDate;
+    }
 
 
 
