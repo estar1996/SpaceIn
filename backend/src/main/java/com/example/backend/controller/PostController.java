@@ -4,12 +4,14 @@ import com.example.backend.domain.Post;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
 import com.example.backend.service.PostService;
+import com.example.backend.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -19,13 +21,14 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    private S3Service s3Service
+    @Autowired
+    private S3Service s3Service;
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) {
+    public List<PostResponseDto> createPost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
 
-        String url = S3S
-        PostResponseDto newPost = postService.createPost(postDto, postDto.getUserId());
-        return new ResponseEntity<>(newPost, HttpStatus.CREATED);
+        String url = s3Service.upload(multipartFile, "spacein","spacein");
+        PostResponseDto newPost = postService.createPost(url, postDto);
+        return postService.getPost(postDto.getUserId());
     }
 
     @GetMapping("/{id}")

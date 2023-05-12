@@ -28,7 +28,8 @@ public class Post {
     private Integer postLikes;
 
     @Builder
-    public Post(User user, String postContent, String postImage, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes) {
+    public Post(String postImage,User user, String postContent, String postImage, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes) {
+        this.
         this.user = user;
         this.postContent = postContent;
         this.postImage = postImage;

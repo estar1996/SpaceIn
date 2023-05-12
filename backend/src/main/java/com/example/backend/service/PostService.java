@@ -8,6 +8,7 @@ import com.example.backend.dto.PostResponseDto;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.RegionRepository;
 import com.example.backend.repository.UserRepository;
+import com.sun.xml.bind.v2.runtime.Coordinator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,13 @@ public class PostService {
         return PostResponseDto.fromEntity(post);
     }
 
+    public void createPost(String url, PostDto postDto) {
+        Long userId = postDto.getUserId();
+
+        Post post = Post.builder().
+
+
+    }
     public PostResponseDto getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with id" + id));
