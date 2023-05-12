@@ -74,6 +74,30 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/background/bg_bluered.png
+    - assets/background/bg_box.png
+    - assets/background/bg_check.png
+    - assets/background/bg_check2.png
+    - assets/background/bg_cute.png
+    - assets/background/bg_flower.png
+    - assets/background/bg_gradient.png
+    - assets/background/bg_gradient2.png
+    - assets/background/bg_greenaura.png
+    - assets/background/bg_letter.png
+    - assets/background/bg_letter2.png
+    - assets/background/bg_line.png
+    - assets/background/bg_mountain.png
+    - assets/background/bg_newspaper.png
+    - assets/background/bg_night.png
+    - assets/background/bg_ocean.png
+    - assets/background/bg_pearl.png
+    - assets/background/bg_photoedit.png
+    - assets/background/bg_photoedit2.png
+    - assets/background/bg_sky.png
+    - assets/background/bg_sky2.png
+    - assets/background/bg_twinkle.png
+    - assets/background/pg_paper.png
+    - assets/background/whiteSpace.png
     - lib/src/map/markerlist.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

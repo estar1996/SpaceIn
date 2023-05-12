@@ -2,12 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend/page/post_write/sticker/background_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/page/post_write/drawing/drawing_page.dart';
 import 'package:frontend/page/post_write/sticker/sticker.dart';
 import 'package:frontend/page/post_write/sticker/sticker_button.dart';
 
 import 'package:screenshot/screenshot.dart';
+
+import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
+    as geolocatorEnums;
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -26,9 +31,82 @@ class _PostPageState extends State<PostPage> {
   bool _isBottomSheetOpen = false;
   bool _isBlackhole = false;
   bool _isBlackholeActive = false;
-  late List<String> imageList;
-  List<Widget> imageOnscreen = [];
+  Position? _currentPosition;
+  List<String> imageList = [
+    'assets/Asteroid.png',
+    'assets/Astronaut-1.png',
+    'assets/Astronaut-2.png',
+    'assets/Astronaut-3.png',
+    'assets/Astronaut-4.png',
+    'assets/background.png',
+    'assets/Comet.png',
+    'assets/Planet & Rocket.png',
+    'assets/Planet-1.png',
+    'assets/Planet-2.png',
+    'assets/Planet-3.png',
+    'assets/Planet-4.png',
+    'assets/Planet-5.png',
+    'assets/Planet-6.png',
+    'assets/Planet-7.png',
+    'assets/Planet-8.png',
+    'assets/Planet-9.png',
+    'assets/Planet-10.png',
+    'assets/Planet-11.png',
+    'assets/Planet-12.png',
+    'assets/Planet-13.png',
+    'assets/Planet-14.png',
+    'assets/Planet-15.png',
+    'assets/Rocket-1.png',
+    'assets/Rocket-2.png',
+    'assets/Rover.png',
+    'assets/SolarSystem.png',
+    'assets/SpaceSatellite.png',
+    'assets/SpaceShip-1.png',
+    'assets/SpaceShip-2.png',
+    'assets/Star1.png',
+    'assets/Star2_1.png',
+    'assets/Star2_2.png',
+    'assets/Star2_3.png',
+    'assets/Star2_4.png',
+    'assets/Star2_5.png',
+    'assets/Star2.png',
+    'assets/Telescope.png',
+    'assets/UFO.png',
+  ];
   List<Widget> stickerList = [];
+
+  List<String> bgList = [
+    'assets/background/bg_bluered.png',
+    'assets/background/bg_box.png',
+    'assets/background/bg_check.png',
+    'assets/background/bg_check2.png',
+    'assets/background/bg_cute.png',
+    'assets/background/bg_flower.png',
+    'assets/background/bg_gradient.png',
+    'assets/background/bg_gradient2.png',
+    'assets/background/bg_greenaura.png',
+    'assets/background/bg_letter.png',
+    'assets/background/bg_letter2.png',
+    'assets/background/bg_line.png',
+    'assets/background/bg_mountain.png',
+    'assets/background/bg_newspaper.png',
+    'assets/background/bg_night.png',
+    'assets/background/bg_ocean.png',
+    'assets/background/bg_pearl.png',
+    'assets/background/bg_photoedit.png',
+    'assets/background/bg_photoedit2.png',
+    'assets/background/bg_sky.png',
+    'assets/background/bg_sky2.png',
+    'assets/background/bg_twinkle.png',
+    'assets/background/pg_paper.png',
+    'assets/background/whiteSpace.png',
+  ];
+  List<Widget> bgButtonList = [];
+
+  bool _isColorImage = true;
+  String _backgroundColorImage = 'assets/background/whiteSpace.png';
+
+  List<Widget> imageOnscreen = [];
   // ignore: prefer_final_fields
   final blackholeKey = GlobalKey();
   late Rect iconRect = Rect.zero;
@@ -45,12 +123,6 @@ class _PostPageState extends State<PostPage> {
   @override
   void initState() {
     // 초기 이미지 목록에 따른 버튼을 생성하기 위한 state 저장
-    imageList = [
-      'assets/Asteroid.png',
-      'assets/Astronaut-1.png',
-      'assets/Planet-14.png',
-      'assets/Star1.png'
-    ];
 
     for (String ads in imageList) {
       stickerList.add(stickerButton(
@@ -58,6 +130,25 @@ class _PostPageState extends State<PostPage> {
         addSticker: _addSticker,
       ));
     }
+
+    for (String ads in bgList) {
+      bgButtonList.add(backgroundButton(
+          address: ads,
+          changeBackgroundImage: _changeBackgroundImage,
+          changeBackgroundType: _changeBackgroundType));
+    }
+  }
+
+  void _changeBackgroundImage(String str) {
+    setState(() {
+      _backgroundColorImage = str;
+    });
+  }
+
+  void _changeBackgroundType(bool result) {
+    setState(() {
+      _isColorImage = result;
+    });
   }
 
   // 배경색 변화 버튼을 위한 함수
@@ -79,6 +170,7 @@ class _PostPageState extends State<PostPage> {
         _backgroundImage = null;
       }
     });
+    _changeBackgroundType(false);
   }
 
   // bottomsheet을 보이는가 안보이는가를 판단
@@ -100,13 +192,7 @@ class _PostPageState extends State<PostPage> {
         _backgroundImage = null;
       }
     });
-  }
-
-  // 현재 배경 사진으로 저장된 값을 없앤다.
-  void _deleteImage() {
-    setState(() {
-      _backgroundImage = null;
-    });
+    _changeBackgroundType(false);
   }
 
   void _showBlackhole() {
@@ -177,177 +263,177 @@ class _PostPageState extends State<PostPage> {
     );
   }
 
-  Future<bool> _onWillPop() async {
-    if (_isBottomSheetOpen) {
-      Navigator.of(context).pop();
-      return false;
-    } else {
-      return true;
+  void _gainCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: geolocatorEnums.LocationAccuracy.high,
+      );
+      setState(() {
+        _currentPosition = position;
+      });
+    } catch (e) {
+      print(e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: MaterialApp(
-        home: Builder(builder: (context) {
-          return Screenshot(
-            controller: screenshotController,
-            child: Container(
-              decoration: BoxDecoration(
-                image: _backgroundImage != null
-                    ? DecorationImage(
-                        fit: BoxFit.cover,
-                        image: FileImage(_backgroundImage!),
-                      )
-                    : null,
+    return Builder(builder: (context) {
+      return Screenshot(
+        controller: screenshotController,
+        child: Container(
+          decoration: BoxDecoration(
+            image: _isColorImage
+                ? DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage(_backgroundColorImage),
+                  )
+                : DecorationImage(
+                    fit: BoxFit.cover,
+                    image: FileImage(_backgroundImage!),
+                  ),
+          ),
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              toolbarHeight: _appBarHeight,
+              backgroundColor: Colors.transparent,
+              elevation: 0.0,
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(
+                  Icons.clear,
+                  color: Colors.black,
+                ),
               ),
-              child: Scaffold(
-                resizeToAvoidBottomInset: false,
-                backgroundColor: Colors.white,
-                appBar: AppBar(
-                  toolbarHeight: _appBarHeight,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0.0,
-                  leading: IconButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(
-                      Icons.clear,
-                      color: Colors.black,
-                    ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _appBarHeight = 0;
+                      _isCaptured = true;
+                    });
+                    screenshotController.capture().then((image) async {
+                      ShowCapturedWidget(context, image!);
+                      setState(() {
+                        _imageFile = image;
+                        _appBarHeight = 56.0;
+                        _isCaptured = false;
+                      });
+                    }).catchError((onError) {
+                      print(onError);
+                    });
+                  },
+                  icon: const Icon(
+                    Icons.check,
+                    color: Colors.black,
                   ),
-                  actions: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _appBarHeight = 0;
-                          _isCaptured = true;
-                        });
-                        screenshotController.capture().then((image) async {
-                          ShowCapturedWidget(context, image!);
-                          setState(() {
-                            _imageFile = image;
-                            _appBarHeight = 56.0;
-                            _isCaptured = false;
-                          });
-                        }).catchError((onError) {
-                          print(onError);
-                        });
-                      },
-                      icon: const Icon(
-                        Icons.check,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
                 ),
-                body: SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Stack(
-                    children: <Widget>[
-                      DrawingPage(
-                        showDrawingPage: _showDrawingPage,
-                      ),
-                      if (!_showDrawingPage)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                          child: Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            top: 0,
-                            child: Center(
-                              child: Transform.translate(
-                                offset: const Offset(0, -50),
-                                child: IntrinsicWidth(
-                                  child: TextField(
-                                    controller: _controller
-                                      ..selection = TextSelection.fromPosition(
-                                        TextPosition(
-                                            offset: _controller.text.length),
-                                      ),
-                                    onChanged: (String newVal) {
-                                      final lines = newVal.split('\n').length;
-                                      if (newVal.length <= _maxLength &&
-                                          lines <= _maxLines) {
-                                        text = newVal;
-                                      } else {
-                                        _controller.text = text;
-                                      }
-                                    },
-                                    textAlign: TextAlign.center,
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: null,
-                                    maxLengthEnforcement:
-                                        MaxLengthEnforcement.enforced,
-                                    minLines: 2,
-                                    style: const TextStyle(
-                                      fontSize: 25,
-                                      height: 1.25,
-                                      letterSpacing: 1.0,
-                                    ),
-                                    decoration: const InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: '아무 글이나 입력하세요.'),
+              ],
+            ),
+            body: SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Stack(
+                children: <Widget>[
+                  DrawingPage(
+                    showDrawingPage: _showDrawingPage,
+                  ),
+                  if (!_showDrawingPage)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: Center(
+                          child: Transform.translate(
+                            offset: const Offset(0, -50),
+                            child: IntrinsicWidth(
+                              child: TextField(
+                                controller: _controller
+                                  ..selection = TextSelection.fromPosition(
+                                    TextPosition(
+                                        offset: _controller.text.length),
                                   ),
+                                onChanged: (String newVal) {
+                                  final lines = newVal.split('/n').length;
+                                  if (newVal.length <= _maxLength &&
+                                      lines <= _maxLines) {
+                                    text = newVal;
+                                  } else {
+                                    _controller.text = text;
+                                  }
+                                },
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.multiline,
+                                maxLines: null,
+                                maxLengthEnforcement:
+                                    MaxLengthEnforcement.enforced,
+                                minLines: 2,
+                                style: const TextStyle(
+                                  fontSize: 25,
+                                  height: 1.25,
+                                  letterSpacing: 1.0,
                                 ),
+                                decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '아무 글이나 입력하세요.'),
                               ),
                             ),
                           ),
                         ),
-                      // 여기부터 개별 이미지 위젯
-                      ...imageOnscreen,
-                      if (_isBlackhole)
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: Padding(
-                              key: blackholeKey,
-                              padding: const EdgeInsets.all(35),
-                              child: Icon(
-                                Icons.delete,
-                                size: _isBlackholeActive ? 60 : 40,
-                                color: _isBlackholeActive
-                                    ? Colors.red
-                                    : Colors.green,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                floatingActionButton: Container(
-                  // duration: const Duration(milliseconds: 200),
-                  // curve: Curves.linear,
-                  margin: EdgeInsets.only(
-                      bottom: _isBottomSheetOpen ? 55 : 0, right: 0.0),
-                  child: Visibility(
-                    visible: !_isCaptured,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        MyFloatingButton3(
-                            toggleDrawingPage: _toggleDrawingPage),
-                        MyFloatingButton1(appState: this),
-                        MyFloatingButton2(appState: this),
-                      ],
+                      ),
                     ),
-                  ),
+                  // 여기부터 개별 이미지 위젯
+                  ...imageOnscreen,
+                  if (_isBlackhole)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Padding(
+                          key: blackholeKey,
+                          padding: const EdgeInsets.all(35),
+                          child: Icon(
+                            Icons.delete,
+                            size: _isBlackholeActive ? 60 : 40,
+                            color:
+                                _isBlackholeActive ? Colors.red : Colors.green,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            floatingActionButton: Container(
+              // duration: const Duration(milliseconds: 200),
+              // curve: Curves.linear,
+              margin: EdgeInsets.only(
+                  bottom: _isBottomSheetOpen ? 55 : 0, right: 0.0),
+              child: Visibility(
+                visible: !_isCaptured,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    MyFloatingButton3(toggleDrawingPage: _toggleDrawingPage),
+                    MyFloatingButton1(appState: this),
+                    MyFloatingButton2(appState: this),
+                  ],
                 ),
               ),
             ),
-          );
-        }),
-      ),
-    );
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -413,40 +499,27 @@ class MyFloatingButton1 extends StatelessWidget {
                             child: TabBarView(
                           controller: tabController,
                           children: <Widget>[
-                            GridView.count(
-                              shrinkWrap: true,
-                              crossAxisCount: 3,
-                              children: <Widget>[
-                                ElevatedButton(
-                                  child: const Text('Close BottomSheet'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                ElevatedButton(
-                                  child: const Text('Black'),
-                                  onPressed: () {
-                                    appState
-                                        ._changeBackgroundColor(Colors.black45);
-                                  },
-                                ),
-                                ElevatedButton(
-                                  child: const Text('White'),
-                                  onPressed: () {
-                                    appState
-                                        ._changeBackgroundColor(Colors.white);
-                                  },
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GridView.count(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 13,
+                                children: appState.bgButtonList,
+                              ),
                             ),
                             Container(
                               color: const Color.fromARGB(255, 190, 112, 201),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: appState.stickerList,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: GridView.count(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 13,
+                                  children: appState.stickerList,
+                                ),
                               ),
-                            )
+                            ),
                           ],
                         ))
                       ],
