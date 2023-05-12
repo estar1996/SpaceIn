@@ -34,9 +34,9 @@ public class LoginController {
         this.userService = userService;
     }
 
-    @GetMapping("/code/{registrationId}") //소셜 로그인 시, DB에 사용자 등록이 되어있는지 일차적으로 확인함
+    @PostMapping ("/code/{registrationId}") //소셜 로그인 시, DB에 사용자 등록이 되어있는지 일차적으로 확인함
     //email을 받고, 이미 구현해놓은 로직을 통해 유저정보가 DB에 존재하는지 확인한다.
-    public ResponseEntity<Map<String, String>> googleLogin(@RequestParam String accessToken, @PathVariable String registrationId) {
+    public ResponseEntity<Map<String, String>> googleLogin(@RequestBody String accessToken, @PathVariable String registrationId) {
         String email = loginService.socialLogin(accessToken, registrationId); //코드를 받아 서버에 요청하여 이메일을 받아옴.
         User user = userService.getUserByEmail(email); //
         // 유저 확인 후 토큰 생성
