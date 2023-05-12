@@ -17,8 +17,6 @@ import java.time.LocalDate;
 public class PostDto {
     private Long userId;
 
-    private Long regionId;
-
     private String postContent;
 
     private String postImage;
@@ -27,19 +25,14 @@ public class PostDto {
 
     private Double postLongitude;
 
-    private LocalDate postDate;
-
-    private Integer postLikes;
-
 
     public Post toEntity(User user) {
         Post post = Post.builder()
                 .user(user)
                 .postContent(postContent)
+                .postImage(postImage)
                 .postLatitude(postLatitude)
                 .postLongitude(postLongitude)
-                .postDate(postDate)
-                .postLikes(postLikes)
                 .build();
         return post;
     }
