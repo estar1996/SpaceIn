@@ -1,11 +1,34 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:location/location.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
     as geolocatorEnums;
+import 'package:dio/dio.dart';
+
+class Post {
+  final int postId;
+  final double postLatitude;
+  final double postLongitude;
+  final String postContent;
+  final int postLikes;
+
+  Post(
+      {required this.postId,
+      required this.postLatitude,
+      required this.postLongitude,
+      required this.postContent,
+      required this.postLikes});
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+        postId: json['postId'],
+        postLatitude: json['postLatitude'],
+        postLongitude: json['postLongitude'],
+        postContent: json['postContent'],
+        postLikes: json['postLikes']);
+  }
+}
 
 class MainMap extends StatefulWidget {
   const MainMap({Key? key}) : super(key: key);
@@ -138,25 +161,42 @@ class _MainMapState extends State<MainMap> {
     );
   }
 
+  Future<List<Post>> fetchPosts() async {
+    try {
+      final response =
+          await Dio().get('http://k8a803.p.ssafy.io:8080/api/posts/');
+      final jsonResult = response.data as List<dynamic>;
+
+      final List<Post> posts =
+          jsonResult.map((json) => Post.fromJson(json)).toList();
+
+      return posts;
+    } catch (e) {
+      // Handle error
+      print('Error: $e');
+      return [];
+    }
+  }
+
   Future<void> _loadMarkers() async {
-    final String data =
-        await rootBundle.loadString('lib/src/map/markerlist.json');
-    final List<dynamic> jsonResult = json.decode(data);
+    final List<Post> posts = await fetchPosts();
 
     final Map<NLatLng, List<String>> markerContents = {};
 
     final List<NMarker> markers = [];
 
-    for (final item in jsonResult) {
-      final String id = item['key'];
-      final double latitude = item['latitude'];
-      final double longitude = item['longitude'];
+    for (final post in posts) {
+      final String id = post.postId.toString();
+      final double latitude = post.postLatitude;
+      final double longitude = post.postLongitude;
       final NLatLng position = NLatLng(latitude, longitude);
+      final int likes = post.postLikes;
       const myMarkerIcon = NOverlayImage.fromAssetImage(
         'assets/Star2.png',
       );
       const markerSize = Size(40, 40);
-      final String content = item['content'];
+      final String content = post
+          .postContent; // Replace with the actual content property from your API
 
       final List<String>? existingMarkerContents = markerContents[position];
       if (existingMarkerContents != null) {
@@ -173,9 +213,33 @@ class _MainMapState extends State<MainMap> {
       );
       // Check if content has multiple items
       final List<String>? markerContent = markerContents[marker.position];
-      if (markerContent != null && markerContent.length > 1) {
+      if (markerContent != null &&
+          markerContent.length > 1 &&
+          markerContent.length < 10) {
         marker.setIcon(const NOverlayImage.fromAssetImage(
           'assets/Star2_1.png',
+        ));
+      } else if (markerContent != null &&
+          markerContent.length > 9 &&
+          markerContent.length < 20) {
+        marker.setIcon(const NOverlayImage.fromAssetImage(
+          'assets/Star2_2.png',
+        ));
+      } else if (markerContent != null &&
+          markerContent.length > 19 &&
+          markerContent.length < 50) {
+        marker.setIcon(const NOverlayImage.fromAssetImage(
+          'assets/Star2_3.png',
+        ));
+      } else if (markerContent != null &&
+          markerContent.length > 49 &&
+          markerContent.length < 100) {
+        marker.setIcon(const NOverlayImage.fromAssetImage(
+          'assets/Star2_4.png',
+        ));
+      } else if (markerContent != null && markerContent.length > 99) {
+        marker.setIcon(const NOverlayImage.fromAssetImage(
+          'assets/Star2_5.png',
         ));
       }
       markers.add(marker);
@@ -203,67 +267,6 @@ class _MainMapState extends State<MainMap> {
       });
     }
   }
-
-  // Future<void> _loadMarkers() async {
-  //   final String data =
-  //       await rootBundle.loadString('lib/src/map/markerlist.json');
-  //   final List<dynamic> jsonResult = json.decode(data);
-
-  //   final markers = jsonResult.map((item) {
-  //     final String id = item['key'];
-  //     final double latitude = item['latitude'];
-  //     final double longitude = item['longitude'];
-  //     final NLatLng position = NLatLng(latitude, longitude);
-  //     const myMarkerIcon = NOverlayImage.fromAssetImage(
-  //       'assets/Star2.png',
-  //     );
-  //     const markerSize = Size(40, 40);
-  //     final marker = NMarker(
-  //       id: id,
-  //       position: position,
-  //       icon: myMarkerIcon,
-  //       size: markerSize,
-  //     );
-
-  //     if (_currentPosition != null) {
-  //       final double distance = Geolocator.distanceBetween(
-  //         _currentPosition!.latitude,
-  //         _currentPosition!.longitude,
-  //         position.latitude,
-  //         position.longitude,
-  //       );
-
-  //       if (distance <= 300) {
-  //         // 100m 반경 이내의 마커만 필터링
-  //         marker.setOnTapListener((marker) {
-  //           // 마커를 클릭했을 때 실행할 코드
-  //           _showModal(item);
-  //         });
-  //       }
-  //     }
-
-  //     return marker;
-  //   }).toList();
-
-  //   final addableMarkers = markers.map((marker) => marker).toSet();
-  //   _controller?.addOverlayAll(addableMarkers);
-
-  //   setState(() {});
-  // }
-
-//마커 추가하기
-
-  // void addMarker() {
-  //   _currentMarker = NMarker(
-  //     id: viewId,
-  //     position:
-  //         NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-  //   );
-
-  //   setState(() {
-  //     _
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
