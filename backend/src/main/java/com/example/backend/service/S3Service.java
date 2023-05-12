@@ -1,5 +1,6 @@
 package com.example.backend.service;
-
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.example.backend.repository.PostRepository;
@@ -58,7 +59,7 @@ public class S3Service {
     }
 
     private String putS3(File uploadFile, String bucket, String fileName) {
-        amazonS3Client.putObject(new putObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
+        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
@@ -102,7 +103,3 @@ public class S3Service {
 
 
 
-
-
-
-}

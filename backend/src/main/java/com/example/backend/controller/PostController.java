@@ -24,7 +24,7 @@ public class PostController {
     @Autowired
     private S3Service s3Service;
     @PostMapping
-    public List<PostResponseDto> createPost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
+    public PostResponseDto createPost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
 
         String url = s3Service.upload(multipartFile, "spacein","spacein");
         PostResponseDto newPost = postService.createPost(url, postDto);

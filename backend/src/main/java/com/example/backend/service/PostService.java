@@ -11,7 +11,10 @@ import com.example.backend.repository.UserRepository;
 import com.sun.xml.bind.v2.runtime.Coordinator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,25 +27,38 @@ public class PostService {
     @Autowired
     private UserRepository userRepository;
 
+
     @Autowired
     private RegionRepository regionRepository;
 
-    public PostResponseDto createPost(PostDto postDto, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id:" + userId));
+    public PostResponseDto createPost(String url, PostDto postDto) {
+//        User user = userRepository.findById(postDto.getUserId())
+//                .orElseThrow(() -> new IllegalArgumentException("User not found with id:" );
 
-        Post post = postDto.toEntity(user);
+//        Post post = postDto.toEntity(user);
+        Post post = Post.builder().
+                postContent(postDto.getPostContent()).
+                postImage(url).
+                postLatitude(postDto.getPostLatitude()).
+                postLongitude(postDto.getPostLongitude()).
+                build();
         postRepository.save(post);
         return PostResponseDto.fromEntity(post);
     }
 
-    public void createPost(String url, PostDto postDto) {
-        Long userId = postDto.getUserId();
 
-        Post post = Post.builder().
+//    public  PostResponseDto createPost(String url, PostDto postDto) {
+//        User user = userRepository.findById(postDto.getUserId())
+//                .orElseThrow(() -> new IllegalArgumentException("User not found with id:"));
+//        Post post = Post.builder().
+//                postContent(postDto.getPostContent()).
+//                postImage(url).
+//                postLatitude(postDto.getPostLatitude()).
+//                postLongitude(postDto.getPostLongitude()).
+//                build();
+//    }
 
 
-    }
     public PostResponseDto getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with id" + id));

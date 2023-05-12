@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter @Setter
@@ -27,9 +29,11 @@ public class Post {
     private LocalDate postDate;
     private Integer postLikes;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
+
     @Builder
-    public Post(String postImage,User user, String postContent, String postImage, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes) {
-        this.
+    public Post(User user, String postContent, String postImage, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes) {
         this.user = user;
         this.postContent = postContent;
         this.postImage = postImage;
