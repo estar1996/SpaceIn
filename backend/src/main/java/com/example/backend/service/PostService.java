@@ -86,6 +86,19 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with id" + id));
         postRepository.delete(post);
     }
+    public List<PostResponseDto> getAllPosts() {
+        List<Post> posts = postRepository.findAll();
+        return posts.stream()
+                .map(PostResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+    public List<PostResponseDto> getPostsByUserId(Long userId) {
+        List<Post> posts = postRepository.findAllByUserId(userId);
+        return posts.stream()
+                .map(PostResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
 
 
 
