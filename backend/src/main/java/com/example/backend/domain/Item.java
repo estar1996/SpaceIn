@@ -20,8 +20,7 @@ public class Item {
 
     private Integer itemPrice;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
+//    @ManyToOne
+//    @JoinColumn(name = "user_id")
+//    private User user;
 }

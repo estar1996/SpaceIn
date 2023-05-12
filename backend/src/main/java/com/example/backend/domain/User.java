@@ -55,6 +55,7 @@ public class User {
     @Column
     private String email;
 
+    @ColumnDefault("false")
     private Boolean userAdmin;
 
 }
