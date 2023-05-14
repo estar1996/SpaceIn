@@ -1,13 +1,9 @@
 package com.example.backend.controller;
 
 import com.example.backend.domain.User;
-import com.example.backend.dto.UserDto;
-import com.example.backend.repository.UserRepository;
 import com.example.backend.service.LoginService;
 import com.example.backend.service.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +15,6 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/login/oauth2", produces = "application/json")
 public class LoginController {
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-
 
     LoginService loginService;
     UserService userService;

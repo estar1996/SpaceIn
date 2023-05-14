@@ -26,11 +26,7 @@ public class User {
     private String username;
     @Column
     private String userNickname;
-    @Column
-    private String userPassword;
-    @Column
-    private Integer userValid;
-    @Column
+    @Column(nullable = true)
     private String userImg;
 
     @ManyToMany
@@ -57,5 +53,4 @@ public class User {
 
     @ColumnDefault("false")
     private Boolean userAdmin;
-
 }

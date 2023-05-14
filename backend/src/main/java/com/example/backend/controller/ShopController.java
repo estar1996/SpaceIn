@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.domain.Item;
+import com.example.backend.domain.User;
 import com.example.backend.service.LoginService;
 import com.example.backend.service.UserService;
 import io.jsonwebtoken.Claims;
@@ -31,8 +32,16 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
         List<?> mylist = new ArrayList<>();
         Claims claims = loginService.getClaimsFromToken(token);
         System.out.println(claims);
-        //claim에서 유저정보를 확인, 해당 유저가 보유한 아이템 출력
-        Set<Item> items = userService.findItemsByUserId(1L);
+        String email = claims.get("email", String.class);
+
+        // claim에서 유저 email 추출, email을 통해 id를 가져옴
+
+        User user = userService.getUserByEmail(email);
+        Long id = user.getId();
+
+        // id를 통해 이메일 출력
+
+        Set<Item> items = userService.findItemsByUserId(id);
 
         return items;
     };

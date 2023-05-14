@@ -57,7 +57,6 @@ public class LoginService {
         return email; // email을 리턴해서 이걸 기준으로 로그인 처리
     }
 
-
     private String getAccessToken(String authorizationCode, String registrationId) {
         String clientId = env.getProperty("oauth2." + registrationId + ".client-id");
         String clientSecret = env.getProperty("oauth2." + registrationId + ".client-secret");
@@ -94,6 +93,7 @@ public class LoginService {
     public String generateToken(String email, String roles) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationTime);
+
 
         JwtBuilder builder = Jwts.builder()
                 .setSubject(email)

@@ -38,6 +38,11 @@ public class UserController {
     @Value("${jwt.secret}") //secret
     private String secretKey;
 
+    @GetMapping("/start")
+    public String startGet(){
+        return "로그인 하세요";
+    }
+
     @PostMapping("/signup") //회원가입이 안 되어있을 때, DB에 회원가입 정보를 추가하는 코드
     public ResponseEntity<?> createUser(@RequestBody UserDto userDto) {
         // 이메일과 닉네임이 이미 사용 중인지 확인
@@ -52,6 +57,8 @@ public class UserController {
         User user = new User();
         user.setEmail(userDto.getEmail());
         user.setUserNickname(userDto.getUserNickname());
+        user.setUserMoney(0);
+        System.out.println(user);
         userRepository.save(user);
 
         return ResponseEntity.ok("사용자가 등록되었습니다.");
