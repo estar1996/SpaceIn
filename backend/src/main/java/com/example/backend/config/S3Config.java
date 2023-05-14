@@ -13,13 +13,13 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Configuration
 public class S3Config {
 
-    @Value("AKIAZLOY223QHP6ZCQGV")
+    @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
 
-    @Value("$gwKj0fad2l9cqfiWJDNSLftSv9ISI7oocvxE73Xl")
+    @Value("${cloud.aws.credentials.secret-key}")
     private String secretKey;
 
-    @Value("ap-northeast-2")
+    @Value("${cloud.aws.region.static}")
     private String region;
 
     public static final String imageFolder = "image";

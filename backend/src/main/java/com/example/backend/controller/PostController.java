@@ -23,31 +23,40 @@ public class PostController {
 
     @Autowired
     private S3Service s3Service;
-    @PostMapping
-    public PostResponseDto createPost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
 
-        String url = s3Service.upload(multipartFile, "spacein","spacein");
-        PostResponseDto newPost = postService.createPost(url, postDto);
-        return postService.getPost(postDto.getUserId());
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PostResponseDto> getPost(@PathVariable Long id) {
-        PostResponseDto post = postService.getPost(id);
-        return new ResponseEntity<>(post, HttpStatus.OK);
+    @PostMapping()
+    public PostResponseDto savePost( @RequestPart PostDto postDto) throws IOException {
+        String url = s3Service.upload(postDto.getMultipartFile(), "spacein", "space");
+        PostResponseDto newPost = postService.savePost(url, postDto);
+        return newPost;
+
     }
 
 
-    @GetMapping("/{id}/near")
-    public ResponseEntity<List<PostResponseDto>> getNearbyPosts(@RequestParam("latitude") double userLatitude, @RequestParam("longitude") double userLongitude) {
-        List<PostResponseDto> nearbyPosts = postService.getNearbyPost(userLatitude, userLongitude, 5.0);
-        return new ResponseEntity<>(nearbyPosts, HttpStatus.OK);
+    @GetMapping("/{postId}")
+    public PostResponseDto getPost(@PathVariable Long postId, @RequestParam Double latitude, @RequestParam Double longitude) {
+        return postService.getPost(postId, latitude, longitude);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/nearby")
+    public List<PostResponseDto> getNearbyPosts(@RequestParam Double latitude, @RequestParam Double longitude, @RequestParam double radiusKm) {
+        return postService.getNearbyPosts(latitude, longitude, radiusKm);
+    }
+
+
+//    @GetMapping("/{id}/near")
+//    public ResponseEntity<List<PostResponseDto>> getNearbyPosts(@RequestParam("latitude") double userLatitude, @RequestParam("longitude") double userLongitude) {
+//        List<PostResponseDto> nearbyPosts = postService.getNearbyPost(userLatitude, userLongitude, 5.0);
+//        return new ResponseEntity<>(nearbyPosts, HttpStatus.OK);
+//    }
+
 
 }
