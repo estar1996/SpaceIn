@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/common/colors.dart';
 import 'package:frontend/page/post_detail/data/post_detail_data.dart';
 
 class CommentModal extends StatefulWidget {
@@ -10,8 +11,7 @@ class CommentModal extends StatefulWidget {
 }
 
 class _CommentModalState extends State<CommentModal> {
-  late final comments;
-  // late Future<List<Map<dynamic, dynamic>>> _comments;
+  List<dynamic>? comments;
 
   Dio dio = Dio();
   final PostDetailApi postDetailApi = PostDetailApi();
@@ -25,14 +25,19 @@ class _CommentModalState extends State<CommentModal> {
 
   // 댓글 조회 통신
   Future getComments() async {
-    comments = PostDetailApi().commentList(1);
-    print(comments);
+    final result = await PostDetailApi().commentList(2);
+    setState(() {
+      comments = result;
+    });
   }
 
   // 댓글 작성 통신
   Future postComment(context, String text) async {
     print(text);
     await PostDetailApi().addComment(text);
+    FocusScope.of(context).unfocus(); // 키보드 숨기기
+    _commentController.clear(); //
+    await getComments();
   }
 
   @override
@@ -58,15 +63,21 @@ class _CommentModalState extends State<CommentModal> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
-            child: ListView.builder(
-              // itemCount: comments.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                    // title: Text(comments[index]['userName']),
-                    // subtitle: Text(comments[index]['commentText']),
-                    );
-              },
-            ),
+            child: comments?.isEmpty == true
+                ? Center(
+                    child: Text(
+                      '작성된 댓글이 없습니다.',
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: comments?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(comments?[index]['userName'] ?? ''),
+                        subtitle: Text(comments?[index]['commentText'] ?? ''),
+                      );
+                    },
+                  ),
           ),
           SizedBox(height: 12),
           TextField(
