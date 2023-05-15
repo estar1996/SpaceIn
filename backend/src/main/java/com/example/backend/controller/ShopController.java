@@ -7,14 +7,10 @@ import com.example.backend.service.ItemService;
 import com.example.backend.service.LoginService;
 import com.example.backend.service.UserService;
 import io.jsonwebtoken.Claims;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -79,9 +75,20 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
                 .body(response);
     }
 
-//    @PostMapping("/buyitem")
-//    public ResponseEntity<Map<String, String>> buyItem(@RequestBody Long itemId) {
-//        // itemId를 받아서
-//    };
+    @PostMapping("/buyitem")
+    public ResponseEntity<Map<String, Object>> buyItem(@RequestHeader String token, @RequestBody Long itemId) {
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Item item = itemService.getItemByItemId(itemId);
+        String result = itemService.buyItem(item, user);
+
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("result", result);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    };
 
 }
