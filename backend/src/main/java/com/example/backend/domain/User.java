@@ -33,7 +33,7 @@ public class User {
     @JoinTable(
             name = "user_item",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "item_id"))
+            inverseJoinColumns = @JoinColumn(name = "item_itemId"))
     private Set<Item> items = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
