@@ -29,7 +29,7 @@ public class PostResponseDto {
     private Double postLongitude;
 
     private LocalDate postDate;
-
+    private String postContent;
     private Integer postLikes;
 
 
@@ -45,6 +45,7 @@ public class PostResponseDto {
         postLatitude = post.getPostLatitude();
         postLongitude = post.getPostLongitude();
         postDate = post.getPostDate();
+        postContent = post.getPostContent();
 //        postLikes = post.getPostLikes();
 
     }
