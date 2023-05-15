@@ -3,7 +3,6 @@ package com.example.backend.controller;
 import com.example.backend.domain.Post;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
-import com.example.backend.repository.PostRepository;
 import com.example.backend.service.PostService;
 import com.example.backend.service.S3Service;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,10 +40,6 @@ public class PostController {
     @GetMapping("/{postId}")
     public PostResponseDto getPost(@PathVariable Long postId, @RequestParam Double latitude, @RequestParam Double longitude) {
         return postService.getPost(postId, latitude, longitude);
-    }
-    @GetMapping
-    public List<PostResponseDto> getAllPosts() {
-        return postService.getAllPosts();
     }
 
 
