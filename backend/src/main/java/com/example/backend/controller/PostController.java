@@ -48,7 +48,7 @@ public class PostController {
         PostResponseDto newPost = postService.savePost(url, postDto);
         return newPost;
     }
-
+//    @ModelAttribute
 
 
     @GetMapping("/{postId}")
