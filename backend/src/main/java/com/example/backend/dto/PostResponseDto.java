@@ -15,14 +15,14 @@ import java.time.LocalDate;
 public class PostResponseDto {
 
     private Long postId;
+
     private Long userId;
+
     private String userNickname;
+
     private Long regionId;
 
-    private String postContent;
-
-    private String postImg;
-
+    private String fileUrl;
 
     private Double postLatitude;
 
@@ -33,24 +33,16 @@ public class PostResponseDto {
     private Integer postLikes;
 
 
-    public static PostResponseDto fromEntity(Post post) {
-        PostResponseDto postResponseDto = new PostResponseDto();
-        postResponseDto.setPostId(post.getPostId());
+    public PostResponseDto(Post post) {
+        postId = post.getPostId();
+        userId = post.getUser().getId();
+        userNickname = post.getUser().getUserNickname();
+        regionId = post.getRegion().getRegionId();
+        fileUrl = post.getFileUrl();
+        postLatitude = post.getPostLatitude();
+        postLongitude = post.getPostLongitude();
+        postDate = post.getPostDate();
+        postLikes = post.getPostLikes();
 
-        if (post.getUser() != null) {
-            postResponseDto.setUserId(post.getUser().getId());
-            postResponseDto.setUserNickname(post.getUser().getUserNickname());
-        }
-
-        if (post.getRegion() != null) {
-            postResponseDto.setRegionId(post.getRegion().getRegionId());
-        }
-        postResponseDto.setPostContent(post.getPostContent());
-        postResponseDto.setPostLatitude(post.getPostLatitude());
-        postResponseDto.setPostImg(post.getPostImage());
-        postResponseDto.setPostLongitude(post.getPostLongitude());
-        postResponseDto.setPostDate(post.getPostDate());
-        postResponseDto.setPostLikes(post.getPostLikes());
-        return postResponseDto;
     }
 }

@@ -10,7 +10,11 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post,Long> {
-    @Query("SELECT p FROM Post p WHERE p.user.id = :userId")
-    List<Post> findAllByUserId(@Param("userId") Long userId);
+
+    @Query("select r from Post r where r.user.id = :userId")
+    List<Post> findByUserId(@Param("userId") Long userId);
+
+    @Query("select r from Post r where r.postLatitude = :latitude and r.postLongitude = :longitude")
+    List<Post> findByPostLatitudeAndPostLongitude(@Param("latitude") double latitude, @Param("longitude") double longitude);
 
 }

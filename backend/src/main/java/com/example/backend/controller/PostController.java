@@ -5,11 +5,17 @@ import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.service.PostService;
+import com.example.backend.service.S3Service;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -18,37 +24,43 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-    private PostRepository postRepository;
-    @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostDto postDto) {
-        PostResponseDto newPost = postService.createPost(postDto, postDto.getUserId());
-        return new ResponseEntity<>(newPost, HttpStatus.CREATED);
+
+    @Autowired
+    private S3Service s3Service;
+
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PostResponseDto savePost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
+        String url = s3Service.upload(multipartFile, "spacein", "space");
+        PostResponseDto newPost = postService.savePost(url, postDto);
+        return newPost;
+
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PostResponseDto> getPost(@PathVariable Long id) {
-        PostResponseDto post = postService.getPost(id);
-        return new ResponseEntity<>(post, HttpStatus.OK);
+
+    @GetMapping("/{postId}")
+    public PostResponseDto getPost(@PathVariable Long postId, @RequestParam Double latitude, @RequestParam Double longitude) {
+        return postService.getPost(postId, latitude, longitude);
     }
     @GetMapping
     public List<PostResponseDto> getAllPosts() {
         return postService.getAllPosts();
     }
 
-    @GetMapping("/user/{userId}")
-    public List<PostResponseDto> getPostsByUserId(@PathVariable Long userId) {
-        return postService.getPostsByUserId(userId);
-    }
-    @GetMapping("/{id}/near")
-    public ResponseEntity<List<PostResponseDto>> getNearbyPosts(@RequestParam("latitude") double userLatitude, @RequestParam("longitude") double userLongitude) {
-        List<PostResponseDto> nearbyPosts = postService.getNearbyPost(userLatitude, userLongitude, 5.0);
-        return new ResponseEntity<>(nearbyPosts, HttpStatus.OK);
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("/nearby")
+    public List<PostResponseDto> getNearbyPosts(@RequestParam Double latitude, @RequestParam Double longitude, @RequestParam double radiusKm) {
+        return postService.getNearbyPosts(latitude, longitude, radiusKm);
     }
 
+    @GetMapping("/samesame")
+    public List<PostResponseDto> getSameSamePosts(@RequestParam Double latitude, @RequestParam Double longitude) {
+        return postService.getSameSamePosts(latitude, longitude);
+    }
 }
