@@ -7,17 +7,17 @@ class DataServerDio {
     dio.options.connectTimeout = Duration(milliseconds: 5000);
     dio.options.receiveTimeout = Duration(milliseconds: 5000);
 
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        return handler.next(options);
-      },
-      onResponse: (options, handler) {
-        return handler.next(options);
-      },
-      onError: (DioError error, handler) {
-        print("inteceptor: ${error.response!.statusCode}");
-      },
-    ));
+    // dio.interceptors.add(InterceptorsWrapper(
+    //   onRequest: (options, handler) {
+    //     return handler.next(options);
+    //   },
+    //   onResponse: (options, handler) {
+    //     return handler.next(options);
+    //   },
+    //   onError: (DioError error, handler) {
+    //     print("inteceptor: ${error.response!.statusCode}");
+    //   },
+    // ));
     return dio;
   }
 }
@@ -26,4 +26,6 @@ class Paths {
   // to server
   static const posts = '/api/posts'; // 글 작성
   static const comments = '/api/comment'; // 댓글 작성
+  static const login = 'login/oauth2/code/google'; // 토큰
+  static const signup = 'user/signup'; // 회원 가입
 }
