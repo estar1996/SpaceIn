@@ -65,10 +65,10 @@ public class S3Service {
 
     private void removeNewFile(File targetFile) {
         if (targetFile.delete()) {
-            // log 하나 찍어볼까 ?
+            log.info("File delete success");
             return;
         }
-        // 실패했을 때 로그도 찍자 ...
+        log.info("File delete fail");
     }
 
     private Optional<File> convert(MultipartFile multipartFile) throws IOException {

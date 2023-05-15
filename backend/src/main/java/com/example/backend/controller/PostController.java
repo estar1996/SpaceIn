@@ -29,15 +29,25 @@ public class PostController {
     private S3Service s3Service;
 
 
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public PostResponseDto savePost(@RequestParam MultipartFile multipartFile, @RequestParam PostDto postDto) throws IOException {
+//        String url = s3Service.upload(multipartFile, "spacein", "space");
+//        PostResponseDto newPost = postService.savePost(url, postDto);
+//        return newPost;
+//
+//    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public PostResponseDto savePost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
+    public PostResponseDto savePost(@RequestParam("multipartFile") MultipartFile multipartFile,
+                                      @RequestParam("userId") Long userId,
+                                      @RequestParam("postContent") String postContent,
+                                      @RequestParam("postLatitude") double postLatitude,
+                                      @RequestParam("postLongitude") double postLongitude) throws IOException {
+        PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude);
         String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);
         return newPost;
-
     }
-
-
 
 
 
