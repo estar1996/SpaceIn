@@ -10,7 +10,9 @@ import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
@@ -31,8 +33,12 @@ public class User {
     @Column
     private String userImg;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Item> userItems;
+    @ManyToMany
+    @JoinTable(
+            name = "user_item",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private Set<Item> items = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> userPosts;

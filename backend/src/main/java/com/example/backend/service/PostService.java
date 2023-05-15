@@ -115,6 +115,19 @@ public class PostService {
         }
         return samesamePosts;
     }
+    public List<PostResponseDto> getAllPosts() {
+        List<Post> posts = postRepository.findAll();
+        return posts.stream()
+                .map(PostResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+    public List<PostResponseDto> getPostsByUserId(Long userId) {
+        List<Post> posts = postRepository.findAllByUserId(userId);
+        return posts.stream()
+                .map(PostResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
 
 
 

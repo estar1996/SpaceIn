@@ -42,8 +42,8 @@ public class LoginService {
     public LoginService(Environment env) {
         this.env = env;
     }
-    public String socialLogin(String code, String registrationId) {
-        String accessToken = getAccessToken(code, registrationId);
+    public String socialLogin(String accessToken, String registrationId) {
+//        String accessToken = getAccessToken(code, registrationId);
         JsonNode userResourceNode = getUserResource(accessToken, registrationId);
         System.out.println("userResourceNode = " + userResourceNode);
 
@@ -56,6 +56,7 @@ public class LoginService {
 
         return email; // email을 리턴해서 이걸 기준으로 로그인 처리
     }
+
 
     private String getAccessToken(String authorizationCode, String registrationId) {
         String clientId = env.getProperty("oauth2." + registrationId + ".client-id");
