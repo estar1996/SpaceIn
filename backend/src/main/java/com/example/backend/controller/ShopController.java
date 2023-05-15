@@ -31,7 +31,7 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
 //    itemList: 유저가 가진 이미지 리스트
 //            [
 //    {imagetype: 1,
-//            imageNaem: 'Star',
+//            imageName: 'Star',
 //            imageHave: bool,
 //            imagePrice: int}
 //    ],
