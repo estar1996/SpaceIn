@@ -13,4 +13,8 @@ public interface PostRepository extends JpaRepository<Post,Long> {
 
     @Query("select r from Post r where r.user.id = :userId")
     List<Post> findByUserId(@Param("userId") Long userId);
+
+    @Query("select r from Post r where r.postLatitude = :latitude and r.postLongitude = :longitude")
+    List<Post> findByPostLatitudeAndPostLongitude(@Param("latitude") double latitude, @Param("longitude") double longitude);
+
 }

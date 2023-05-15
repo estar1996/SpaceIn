@@ -5,8 +5,11 @@ import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
 import com.example.backend.service.PostService;
 import com.example.backend.service.S3Service;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,9 +28,9 @@ public class PostController {
     private S3Service s3Service;
 
 
-    @PostMapping()
-    public PostResponseDto savePost( @RequestPart PostDto postDto) throws IOException {
-        String url = s3Service.upload(postDto.getMultipartFile(), "spacein", "space");
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PostResponseDto savePost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
+        String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);
         return newPost;
 
@@ -51,12 +54,8 @@ public class PostController {
         return postService.getNearbyPosts(latitude, longitude, radiusKm);
     }
 
-
-//    @GetMapping("/{id}/near")
-//    public ResponseEntity<List<PostResponseDto>> getNearbyPosts(@RequestParam("latitude") double userLatitude, @RequestParam("longitude") double userLongitude) {
-//        List<PostResponseDto> nearbyPosts = postService.getNearbyPost(userLatitude, userLongitude, 5.0);
-//        return new ResponseEntity<>(nearbyPosts, HttpStatus.OK);
-//    }
-
-
+    @GetMapping("/samesame")
+    public List<PostResponseDto> getSameSamePosts(@RequestParam Double latitude, @RequestParam Double longitude) {
+        return postService.getSameSamePosts(latitude, longitude);
+    }
 }

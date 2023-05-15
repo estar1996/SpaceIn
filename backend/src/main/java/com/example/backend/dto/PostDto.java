@@ -18,8 +18,6 @@ import java.time.LocalDate;
 public class PostDto {
     private Long userId;
 
-    private MultipartFile multipartFile;
-
     private Double postLatitude;
 
     private Double postLongitude;

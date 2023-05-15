@@ -107,6 +107,15 @@ public class PostService {
 
     }
 
+    public List<PostResponseDto> getSameSamePosts(Double latitude, Double longitude) {
+        List<Post> posts = postRepository.findByPostLatitudeAndPostLongitude(latitude, longitude);
+        List<PostResponseDto> samesamePosts = new ArrayList<>();
+        for (Post post : posts) {
+            samesamePosts.add(new PostResponseDto(post));
+        }
+        return samesamePosts;
+    }
+
 
 
 
