@@ -23,6 +23,8 @@ public class Post {
     @ManyToOne
     private Region region;
     private String fileUrl;
+
+    private String postContent;
     private Double postLatitude;
     private Double postLongitude;
     private LocalDate postDate;
@@ -32,13 +34,14 @@ public class Post {
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public Post(User user, String postContent, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes) {
+    public Post(User user, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
         this.user = user;
         this.fileUrl = fileUrl;
         this.postLatitude = postLatitude;
         this.postLongitude = postLongitude;
         this.postDate = postDate;
         this.postLikes = postLikes;
+        this.postContent = postContent;
     }
 
 }

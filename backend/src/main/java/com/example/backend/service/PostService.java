@@ -59,11 +59,18 @@ public class PostService {
         return posts.stream().map(PostResponseDto::new).collect(Collectors.toList());
     }
 
+    public List<PostResponseDto> getAllPosts() {
+        List<Post> posts = postRepository.findAll();
+        return posts.stream()
+                .map(PostResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
     public PostResponseDto getPost(Long postId, Double latitude, Double longitude) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NoSuchElementException("Post not found with id: " + postId));
 
-        if (isWithinRadius(post.getPostLatitude(), post.getPostLongitude(), latitude, longitude, 1.0)) {
+        if (!isWithinRadius(post.getPostLatitude(), post.getPostLongitude(), latitude, longitude, 50.0)) {
             throw new IllegalArgumentException("The post is not within the acceptable range.");
         }
 

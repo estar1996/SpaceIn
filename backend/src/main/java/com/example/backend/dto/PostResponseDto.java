@@ -35,14 +35,17 @@ public class PostResponseDto {
 
     public PostResponseDto(Post post) {
         postId = post.getPostId();
-        userId = post.getUser().getId();
-        userNickname = post.getUser().getUserNickname();
-        regionId = post.getRegion().getRegionId();
+        if (post.getUser() != null) {
+            userId = post.getUser().getId();
+            userNickname = post.getUser().getUserNickname();
+        }
+
+//        regionId = post.getRegion().getRegionId();
         fileUrl = post.getFileUrl();
         postLatitude = post.getPostLatitude();
         postLongitude = post.getPostLongitude();
         postDate = post.getPostDate();
-        postLikes = post.getPostLikes();
+//        postLikes = post.getPostLikes();
 
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -37,11 +38,20 @@ public class PostController {
     }
 
 
+
+
+
     @GetMapping("/{postId}")
     public PostResponseDto getPost(@PathVariable Long postId, @RequestParam Double latitude, @RequestParam Double longitude) {
         return postService.getPost(postId, latitude, longitude);
     }
 
+
+    @GetMapping("/all")
+    public ResponseEntity<List<PostResponseDto>> getAllPosts() {
+        List<PostResponseDto> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
+    }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
