@@ -14,6 +14,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
     as geolocatorEnums;
 
+import 'package:dio/dio.dart';
+
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
 
@@ -106,6 +108,7 @@ class _PostPageState extends State<PostPage> {
   bool _isColorImage = true;
   String _backgroundColorImage = 'assets/background/whiteSpace.png';
 
+  final dio = Dio();
   List<Widget> imageOnscreen = [];
   // ignore: prefer_final_fields
   final blackholeKey = GlobalKey();
@@ -263,14 +266,26 @@ class _PostPageState extends State<PostPage> {
     );
   }
 
-  void _gainCurrentLocation() async {
+  // 글을 작성완료하는 현재 위치를 구해서 post하는 함수
+  void _gainCurrentLocation(MultipartFile multipartfile) async {
     try {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: geolocatorEnums.LocationAccuracy.high,
       );
-      setState(() {
-        _currentPosition = position;
+      print('position은 $position');
+      FormData formData = FormData.fromMap({
+        // 'userId': 유저ID
+        'image': multipartfile,
+        // 'postLatitude': position.latitude,
+        // 'postLongitude': position.longitude,
       });
+
+      // Response response = await Dio().post(
+      //   api 보낼 주소'https://example.com/upload',
+      //   data: formData,
+      // );
+
+      // print(response);
     } catch (e) {
       print(e);
     }
@@ -313,12 +328,18 @@ class _PostPageState extends State<PostPage> {
               actions: [
                 IconButton(
                   onPressed: () {
+                    _toggleDrawingPage();
                     setState(() {
                       _appBarHeight = 0;
                       _isCaptured = true;
                     });
                     screenshotController.capture().then((image) async {
                       ShowCapturedWidget(context, image!);
+                      MultipartFile multipartFile = MultipartFile.fromBytes(
+                        image,
+                        filename: 'image.png',
+                      );
+                      _gainCurrentLocation(multipartFile);
                       setState(() {
                         _imageFile = image;
                         _appBarHeight = 56.0;
