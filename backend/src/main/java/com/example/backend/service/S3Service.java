@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,15 +73,27 @@ public class S3Service {
     }
 
     private Optional<File> convert(MultipartFile multipartFile) throws IOException {
-        if (multipartFile.isEmpty()) {
-            return Optional.empty();
+        File convertFile = new File(multipartFile.getOriginalFilename());
+        if (convertFile.createNewFile()) {
+            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+                fos.write(multipartFile.getBytes());
+            }
+            return Optional.of(convertFile);
         }
-        String originalFilename = multipartFile.getOriginalFilename();
-        String storeFileName = createStoreFileName(originalFilename);
+        return Optional.empty();
 
-        File file = new File(fileDir + storeFileName);
-        multipartFile.transferTo(file);
-        return Optional.of(file);
+
+
+
+//        if (multipartFile.isEmpty()) {
+//            return Optional.empty();
+//        }
+//        String originalFilename = multipartFile.getOriginalFilename();
+//        String storeFileName = createStoreFileName(originalFilename);
+//
+//        File file = new File(fileDir + storeFileName);
+//        multipartFile.transferTo(file);
+//        return Optional.of(file);
     }
 
 
