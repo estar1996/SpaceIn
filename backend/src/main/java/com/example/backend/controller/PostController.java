@@ -38,7 +38,7 @@ public class PostController {
 //    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public PostResponseDto savePost(@RequestParam("multipartFile") MultipartFile multipartFile,
+    public PostResponseDto savePost(@RequestPart("multipartFile") MultipartFile multipartFile,
                                       @RequestParam("userId") Long userId,
                                       @RequestParam("postContent") String postContent,
                                       @RequestParam("postLatitude") double postLatitude,
