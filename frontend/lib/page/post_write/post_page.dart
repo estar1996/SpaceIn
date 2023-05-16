@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:frontend/page/post_write/sticker/background_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/page/post_write/drawing/drawing_page.dart';
@@ -15,6 +16,7 @@ import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
     as geolocatorEnums;
 
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -122,6 +124,11 @@ class _PostPageState extends State<PostPage> {
   bool _isCaptured = false;
 
   ScreenshotController screenshotController = ScreenshotController();
+
+  //Textfield용 focus 조절장치
+  final focuseNode = FocusNode();
+
+  MediaType contentType = MediaType.parse('image/jpeg');
 
   @override
   void initState() {
@@ -272,18 +279,48 @@ class _PostPageState extends State<PostPage> {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: geolocatorEnums.LocationAccuracy.high,
       );
-      print('position은 $position');
-      FormData formData = FormData.fromMap({
-        // 'userId': 유저ID
-        'image': multipartfile,
-        // 'postLatitude': position.latitude,
-        // 'postLongitude': position.longitude,
-      });
+      final NLatLng newPosition = NLatLng(
+        double.parse(position.latitude.toStringAsFixed(3)),
+        double.parse(position.longitude.toStringAsFixed(3)),
+      );
+      print('position은 ${newPosition.latitude}, ${newPosition.longitude}');
 
-      // Response response = await Dio().post(
-      //   api 보낼 주소'https://example.com/upload',
-      //   data: formData,
-      // );
+      // Map<String, dynamic> requestParam = {
+      //   'userId': 1,
+      //   'postContent': text,
+      //   'postLatitude': newPosition.latitude.toString(),
+      //   'postLongitude': newPosition.longitude.toString(),
+      // };
+
+      FormData formData = FormData();
+
+      formData.fields.add(const MapEntry('userId', '1'));
+
+      formData.fields.add(MapEntry('postContent', text));
+
+      formData.fields
+          .add(MapEntry('postLatitude', newPosition.latitude.toString()));
+
+      formData.fields
+          .add(MapEntry('postLongitude', newPosition.longitude.toString()));
+
+      formData.files.add(MapEntry('multipartFile', multipartfile));
+
+      Dio dio = Dio();
+      // dio.options.headers["Authorization"] = SecureStorage().getAccessToken();
+
+      try {
+        Response response = await dio.post(
+          'http://k8a803.p.ssafy.io:8080/api/posts',
+          data: formData,
+          options: Options(
+            headers: {'Content-Type': 'multipart/form-data'},
+          ),
+        );
+        print(response.data);
+      } catch (e) {
+        print(e);
+      }
 
       // print(response);
     } catch (e) {
@@ -328,16 +365,19 @@ class _PostPageState extends State<PostPage> {
               actions: [
                 IconButton(
                   onPressed: () {
-                    _toggleDrawingPage();
+                    // print(text);
                     setState(() {
+                      _showDrawingPage = false;
                       _appBarHeight = 0;
                       _isCaptured = true;
                     });
+
                     screenshotController.capture().then((image) async {
                       ShowCapturedWidget(context, image!);
                       MultipartFile multipartFile = MultipartFile.fromBytes(
                         image,
-                        filename: 'image.png',
+                        filename: 'image.jpg',
+                        contentType: contentType,
                       );
                       _gainCurrentLocation(multipartFile);
                       setState(() {
@@ -377,6 +417,9 @@ class _PostPageState extends State<PostPage> {
                             offset: const Offset(0, -50),
                             child: IntrinsicWidth(
                               child: TextField(
+                                onTapOutside: (event) {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
                                 controller: _controller
                                   ..selection = TextSelection.fromPosition(
                                     TextPosition(
