@@ -48,6 +48,7 @@ public class PostService {
                 postLongitude(postDto.getPostLongitude()).
                 postDate(LocalDate.now()).
                 postLikes(0).
+                postContent(postDto.getPostContent()).
                 build();
 
         Post savedPost = postRepository.save(post);
