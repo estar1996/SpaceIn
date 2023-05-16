@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:page_indicator/page_indicator.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:frontend/page/shop/shop_detail.dart';
+import 'package:frontend/page/shop/shop_bottom.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -109,237 +110,292 @@ class _ShopPageState extends State<ShopPage> {
     super.dispose();
   }
 
+  void buyItem(int price) {
+    setState(() {
+      workPoint -= price;
+    });
+  }
+
   int counter = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: SafeArea(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: SafeArea(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '스토어',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '🌟 $workPoint',
+                      style: const TextStyle(
+                          color: Color.fromARGB(255, 80, 80, 80),
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+              ),
+            ),
+
+            // 우주인 추천
+            Container(
+              height: 220,
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+              child: PageIndicatorContainer(
+                key: key,
+                indicatorSelectorColor:
+                    const Color.fromARGB(255, 181, 154, 240),
+                indicatorColor: Colors.white,
+                padding: const EdgeInsets.all(25),
+                align: IndicatorAlign.bottom,
+                length: 3,
+                indicatorSpace: 8.0,
+                child: PageView(
+                  controller: controller,
+                  children: const <Widget>[
+                    Image(
+                      fit: BoxFit.fill,
+                      image: AssetImage('assets/ShopBanner_1.png'),
+                    ),
+                    Image(
+                      width: 300,
+                      fit: BoxFit.fill,
+                      image: AssetImage('assets/ShopBanner_2.png'),
+                    ),
+                    Image(
+                      width: 300,
+                      fit: BoxFit.fill,
+                      image: AssetImage('assets/ShopBanner_3.png'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    '스토어',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold),
+                    '낙서를 더 돋보이게🌠',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    '🌟 $workPoint',
-                    style: const TextStyle(
-                        color: Color.fromARGB(255, 80, 80, 80),
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold),
+                  //아이콘 누르면 배경이나 스티커 리스트로 모달띄우기
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => shopDetail(
+                            point: workPoint,
+                            type: true,
+                            imageList: bgList,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.arrow_forward_ios_rounded),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: FlutterCarousel(
+                options: CarouselOptions(
+                  viewportFraction: 0.3,
+                  height: 150.0,
+                  initialPage: 1,
+                  showIndicator: false,
+                ),
+                items: bgList.map((i) {
+                  final index = bgList.indexOf(i);
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            clipBehavior: Clip.antiAlias,
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              topRight: Radius.circular(15),
+                            )),
+                            backgroundColor:
+                                const Color.fromARGB(255, 190, 112, 201),
+                            context: context,
+                            builder: (BuildContext context) {
+                              return shopBottom(
+                                address: i,
+                                buyItem: buyItem,
+                                price: 10,
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.symmetric(horizontal: 6.0),
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(i),
+                              fit: BoxFit.cover,
+                              colorFilter: !bgHaveList[index]
+                                  ? ColorFilter.mode(
+                                      Colors.black.withOpacity(0.5),
+                                      BlendMode.darken)
+                                  : null,
+                            ),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: !bgHaveList[index]
+                              ? const Center(
+                                  child: Text(
+                                    '🌟 10',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '🎀스티커🎀',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  //아이콘 누르면 배경이나 스티커 리스트로 모달띄우기
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => shopDetail(
+                            point: workPoint,
+                            type: false,
+                            imageList: imageList,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.arrow_forward_ios_rounded),
                   )
                 ],
               ),
             ),
-          ),
-
-          // 우주인 추천
-          Container(
-            height: 220,
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            child: PageIndicatorContainer(
-              key: key,
-              indicatorSelectorColor: const Color.fromARGB(255, 181, 154, 240),
-              indicatorColor: Colors.white,
-              padding: const EdgeInsets.all(25),
-              align: IndicatorAlign.bottom,
-              length: 3,
-              indicatorSpace: 8.0,
-              child: PageView(
-                controller: controller,
-                children: const <Widget>[
-                  Image(
-                    fit: BoxFit.fill,
-                    image: AssetImage('assets/ShopBanner_1.png'),
-                  ),
-                  Image(
-                    width: 300,
-                    fit: BoxFit.fill,
-                    image: AssetImage('assets/ShopBanner_2.png'),
-                  ),
-                  Image(
-                    width: 300,
-                    fit: BoxFit.fill,
-                    image: AssetImage('assets/ShopBanner_3.png'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '낙서를 더 돋보이게🌠',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            // 이미지 리스트
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: FlutterCarousel(
+                options: CarouselOptions(
+                  viewportFraction: 0.3,
+                  height: 150.0,
+                  initialPage: 1,
+                  showIndicator: false,
                 ),
-                //아이콘 누르면 배경이나 스티커 리스트로 모달띄우기
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => shopDetail(
-                          point: workPoint,
-                          type: true,
-                          imageList: bgList,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Icon(Icons.arrow_forward_ios_rounded),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: FlutterCarousel(
-              options: CarouselOptions(
-                viewportFraction: 0.3,
-                height: 150.0,
-                initialPage: 1,
-                showIndicator: false,
-              ),
-              items: bgList.map((i) {
-                final index = bgList.indexOf(i);
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: const EdgeInsets.symmetric(horizontal: 6.0),
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(i),
-                          fit: BoxFit.cover,
-                          colorFilter: !bgHaveList[index]
-                              ? ColorFilter.mode(Colors.black.withOpacity(0.5),
-                                  BlendMode.darken)
-                              : null,
-                        ),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                      ),
-                      child: !bgHaveList[index]
-                          ? const Center(
-                              child: Text(
-                                '🌟 10',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            )
-                          : null,
-                    );
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '🎀스티커🎀',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                //아이콘 누르면 배경이나 스티커 리스트로 모달띄우기
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => shopDetail(
-                          point: workPoint,
-                          type: false,
-                          imageList: imageList,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Icon(Icons.arrow_forward_ios_rounded),
-                )
-              ],
-            ),
-          ),
-          // 이미지 리스트
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: FlutterCarousel(
-              options: CarouselOptions(
-                viewportFraction: 0.3,
-                height: 150.0,
-                initialPage: 1,
-                showIndicator: false,
-              ),
-              items: imageList.map((i) {
-                final index = imageList.indexOf(i);
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 6.0, vertical: 2.0),
-                      decoration: BoxDecoration(
-                        border: imageHaveList[index]
-                            ? Border.all(
-                                color: Colors.black12,
-                                width: 1,
-                              )
-                            : null,
-                        image: DecorationImage(
-                          image: AssetImage(i),
-                          fit: BoxFit.fitWidth,
-                        ),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                      ),
-                      child: Stack(
-                        children: [
-                          if (!imageHaveList[index])
-                            Opacity(
-                              opacity: 0.5,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                              ),
+                items: imageList.map((i) {
+                  final index = imageList.indexOf(i);
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            clipBehavior: Clip.antiAlias,
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              topRight: Radius.circular(15),
+                            )),
+                            backgroundColor:
+                                const Color.fromARGB(255, 190, 112, 201),
+                            context: context,
+                            builder: (BuildContext context) {
+                              return shopBottom(
+                                address: i,
+                                buyItem: buyItem,
+                                price: 10,
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 6.0, vertical: 2.0),
+                          decoration: BoxDecoration(
+                            border: imageHaveList[index]
+                                ? Border.all(
+                                    color: Colors.black12,
+                                    width: 1,
+                                  )
+                                : null,
+                            image: DecorationImage(
+                              image: AssetImage(i),
+                              fit: BoxFit.fitWidth,
                             ),
-                          if (!imageHaveList[index])
-                            const Center(
-                              child: Text(
-                                '🌟 10',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: Stack(
+                            children: [
+                              if (!imageHaveList[index])
+                                Opacity(
+                                  opacity: 0.5,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10))),
+                                  ),
                                 ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              }).toList(),
+                              if (!imageHaveList[index])
+                                const Center(
+                                  child: Text(
+                                    '🌟 10',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
