@@ -43,6 +43,8 @@ public class PostController {
                                       @RequestParam("postContent") String postContent,
                                       @RequestParam("postLatitude") double postLatitude,
                                       @RequestParam("postLongitude") double postLongitude) throws IOException {
+        System.out.println(multipartFile.getSize());
+        System.out.println(multipartFile.getName());
         PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude);
         String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);
