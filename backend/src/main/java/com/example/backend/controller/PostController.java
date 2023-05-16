@@ -56,6 +56,15 @@ public class PostController {
         return postService.getPost(postId, latitude, longitude);
     }
 
+    //유저별 게시물 조회
+    @GetMapping("/{userId}/posts")
+    public List<PostResponseDto> getUserPost(@PathVariable Long userId) {
+        return postService.getUserPost(userId);
+    }
+
+
+
+
 
     @GetMapping("/all")
     public ResponseEntity<List<PostResponseDto>> getAllPosts() {
