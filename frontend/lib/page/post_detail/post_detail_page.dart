@@ -161,7 +161,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         child: Column(
           children: const [
             Icon(
-              Icons.chat_bubble_rounded,
+              Icons.chat_bubble_outline_rounded,
               color: Colors.white,
               size: 35,
             ),
@@ -185,7 +185,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       child: Column(
         children: const [
           Icon(
-            Icons.favorite_rounded,
+            Icons.favorite_border_rounded,
             color: Colors.white,
             size: 35,
           ),
