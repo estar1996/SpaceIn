@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:frontend/page/post_detail/post_detail_page.dart';
 import 'package:location/location.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
@@ -21,12 +22,19 @@ class Post {
       required this.postLikes});
 
   factory Post.fromJson(Map<String, dynamic> json) {
+    final int postId = json['postId'] ?? 0;
+    final double postLatitude = json['postLatitude'] ?? 0.0;
+    final double postLongitude = json['postLongitude'] ?? 0.0;
+    final String postContent = json['postContent'] ?? '';
+    final int postLikes = json['postLikes'] ?? 0;
+
     return Post(
-        postId: json['postId'],
-        postLatitude: json['postLatitude'],
-        postLongitude: json['postLongitude'],
-        postContent: json['postContent'],
-        postLikes: json['postLikes']);
+      postId: postId,
+      postLatitude: postLatitude,
+      postLongitude: postLongitude,
+      postContent: postContent,
+      postLikes: postLikes,
+    );
   }
 }
 
@@ -43,6 +51,8 @@ class _MainMapState extends State<MainMap> {
   LocationData? _locationData;
   bool _isLoaded = false;
   Position? _currentPosition;
+  Map<NLatLng, int> markerCounts = {};
+  Map<NLatLng, List<String>> markerContents = {};
 
   @override
   void initState() {
@@ -60,6 +70,7 @@ class _MainMapState extends State<MainMap> {
         _currentPosition = position;
       });
       _getCurrentLocation(); // 내 위치가 갱신되면 위치 정보에 기반한 마커와 원을 다시 그림
+      // await _loadMarkers(); // 데이터를 가져온 후에 마커를 추가함
     } catch (e) {
       print(e);
     }
@@ -121,58 +132,172 @@ class _MainMapState extends State<MainMap> {
       _controller?.addOverlay(circleOverlay); // 변수 뒤에 ?를 붙여줍니다.
     }
 
-    await _loadMarkers();
-    _isLoaded = true;
-
     _setLocationTrackingMode(NLocationTrackingMode.follow); // 마지막 줄에 추가
 
     setState(() {});
+
+    await _loadMarkers();
+    _isLoaded = true;
   }
 
-  void _showModal(List<String> contents) {
-    if (contents.isEmpty) return; // Exit if there are no contents
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(20),
-          topLeft: Radius.circular(20),
-        ),
-      ),
-      builder: ((context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final content in contents)
-                Text(
-                  content,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-            ],
+  void _showModal(double latitude, double longitude) {
+    fetchPostsByLocation(latitude, longitude).then((posts) {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(20),
+            topLeft: Radius.circular(20),
           ),
-        );
-      }),
+        ),
+        builder: (context) {
+          return Container(
+            padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+            height: MediaQuery.of(context).size.height * 0.3, // 원하는 크기로 조정
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(20),
+                topLeft: Radius.circular(20),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: ListView.separated(
+                itemBuilder: (context, index) {
+                  final post = posts[index];
+                  final postId = post.postId.toString();
+                  final postLikes = post.postLikes.toString();
+                  final item = post.postContent; // 개별 항목 가져오기
+                  var commentCount = 0;
+
+                  // 댓글 개수 가져오기
+                  fetchCommentCount(post.postId).then((comment) {
+                    // 댓글 개수 업데이트
+                    commentCount = comment;
+                  });
+
+                  return ListTile(
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item, // 개별 항목 사용
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.favorite_border_rounded),
+                        const SizedBox(width: 4),
+                        Text(postLikes ?? '0'),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.messenger_outline_rounded),
+                        const SizedBox(width: 4),
+                        Text(commentCount.toString()), // 댓글 개수 표시
+                      ],
+                    ),
+                    onTap: () {
+                      // 클릭 시 원하는 페이지로 이동하는 코드 작성
+                      _navigateToPage(postId); // 인덱스 값을 전달
+                    },
+                  );
+                },
+                separatorBuilder: (_, __) => const Divider(),
+                itemCount: posts.length, // 항목 수만큼 반복
+              ),
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  Future<int> fetchCommentCount(int postId) async {
+    try {
+      final response = await Dio().get(
+        'http://k8a803.p.ssafy.io:8080/api/comment/comments/',
+        queryParameters: {'postId': postId},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResult = response.data as List<dynamic>;
+        final List<Post> comments = jsonResult.map((json) {
+          return Post.fromJson(json);
+        }).toList();
+        print('comment성공');
+        return comments.length;
+      } else {
+        print('Error: ${response.statusCode}');
+        return 0;
+      }
+    } catch (e) {
+      print('Error: $e');
+      return 0;
+    }
+  }
+
+  Future<List<Post>> fetchPostsByLocation(
+      double latitude, double longitude) async {
+    try {
+      final response = await Dio().get(
+        'http://k8a803.p.ssafy.io:8080/api/posts/samesame',
+        queryParameters: {'latitude': latitude, 'longitude': longitude},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResult = response.data as List<dynamic>;
+        final List<Post> posts = jsonResult.map((json) {
+          final int postLikes =
+              json['postLikes'] != null ? json['postLikes'] as int : 0;
+          return Post(
+            postId: json['postId'] as int,
+            postContent: json['postContent'] as String,
+            postLatitude: json['postLatitude'] as double,
+            postLongitude: json['postLongitude'] as double,
+            postLikes: postLikes,
+          );
+        }).toList();
+        print('샘샘성공');
+        print(posts);
+        return posts;
+      } else {
+        throw Exception('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  void _navigateToPage(String key) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostDetailPage(key: ValueKey(key)),
+      ),
     );
   }
 
   Future<List<Post>> fetchPosts() async {
     try {
       final response =
-          await Dio().get('http://k8a803.p.ssafy.io:8080/api/posts/');
-      final jsonResult = response.data as List<dynamic>;
+          await Dio().get('http://k8a803.p.ssafy.io:8080/api/posts/all');
 
-      final List<Post> posts =
-          jsonResult.map((json) => Post.fromJson(json)).toList();
-
-      return posts;
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResult = response.data as List<dynamic>;
+        final List<Post> posts = jsonResult.map((json) {
+          final int postLikes =
+              json['postLikes'] != null ? json['postLikes'] as int : 0;
+          return Post.fromJson({...json, 'postLikes': postLikes});
+        }).toList();
+        print('성공탱');
+        return posts;
+      } else {
+        print('Error: ${response.statusCode}');
+        return [];
+      }
     } catch (e) {
-      // Handle error
       print('Error: $e');
       return [];
     }
@@ -189,14 +314,16 @@ class _MainMapState extends State<MainMap> {
       final String id = post.postId.toString();
       final double latitude = post.postLatitude;
       final double longitude = post.postLongitude;
-      final NLatLng position = NLatLng(latitude, longitude);
+      final NLatLng position = NLatLng(
+        double.parse(latitude.toStringAsFixed(3)),
+        double.parse(longitude.toStringAsFixed(3)),
+      );
       final int likes = post.postLikes;
       const myMarkerIcon = NOverlayImage.fromAssetImage(
         'assets/Star2.png',
       );
       const markerSize = Size(40, 40);
-      final String content = post
-          .postContent; // Replace with the actual content property from your API
+      final String content = post.postContent;
 
       final List<String>? existingMarkerContents = markerContents[position];
       if (existingMarkerContents != null) {
@@ -261,7 +388,7 @@ class _MainMapState extends State<MainMap> {
         if (distance <= 300) {
           final List<String>? markerContent = markerContents[marker.position];
           if (markerContent != null) {
-            _showModal(markerContent);
+            _showModal(marker.position.latitude, marker.position.longitude);
           }
         }
       });
