@@ -1,4 +1,5 @@
 package com.example.backend.service;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -47,22 +48,40 @@ public class S3Service {
         }
     }
 
+//    public String upload(MultipartFile multipartFile, String bucket, String dirName) throws IOException {
+//        File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
+//                .orElseThrow(() -> new IllegalArgumentException("error: MultipartFile -> File convert fail"));
+//        return upload(uploadFile, bucket, dirName);
+//    }
+//    private String upload(File uploadFile, String bucket, String dirName) {
+//        String fileName = dirName + "/" + UUID.randomUUID() + uploadFile.getName();   // S3에 저장된 파일 이름
+//        String uploadImageUrl = putS3(uploadFile, bucket, fileName); // s3로 업로드
+//        removeNewFile(uploadFile);
+//        return uploadImageUrl;
+//    }
+//
+//    private String putS3(File uploadFile, String bucket, String fileName) {
+//        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
+//        return amazonS3Client.getUrl(bucket, fileName).toString();
+//    }
     public String upload(MultipartFile multipartFile, String bucket, String dirName) throws IOException {
-        File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
-                .orElseThrow(() -> new IllegalArgumentException("error: MultipartFile -> File convert fail"));
-        return upload(uploadFile, bucket, dirName);
-    }
-    private String upload(File uploadFile, String bucket, String dirName) {
-        String fileName = dirName + "/" + UUID.randomUUID() + uploadFile.getName();   // S3에 저장된 파일 이름
-        String uploadImageUrl = putS3(uploadFile, bucket, fileName); // s3로 업로드
-        removeNewFile(uploadFile);
-        return uploadImageUrl;
+        String fileName = dirName + "/" + createStoreFileName(multipartFile.getOriginalFilename());  // S3에 저장된 파일 이름
+        return putS3(multipartFile, bucket, fileName);  // s3로 업로드
     }
 
-    private String putS3(File uploadFile, String bucket, String fileName) {
-        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
+    private String putS3(MultipartFile multipartFile, String bucket, String fileName) throws IOException {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(multipartFile.getSize());
+        objectMetadata.setContentType(multipartFile.getContentType());
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, multipartFile.getInputStream(), objectMetadata)
+                .withCannedAcl(CannedAccessControlList.PublicRead);
+
+        amazonS3Client.putObject(putObjectRequest);
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
+
+
 
     private void removeNewFile(File targetFile) {
         if (targetFile.delete()) {
