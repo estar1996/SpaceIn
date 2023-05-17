@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
 
@@ -26,5 +26,18 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public boolean deleteById(Long id) {
+        try {
+            userRepository.deleteById(id);
+            return true; // 삭제 성공
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // 삭제 실패
+        }
+    }
+    public void updateUserNickname(Long userId, String nickname) {
+        userRepository.updateUserNickname(userId, nickname);
     }
 }

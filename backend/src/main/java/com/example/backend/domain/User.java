@@ -48,7 +48,7 @@ public class User {
     @ColumnDefault("0")
     private Integer userMoney;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
     @ColumnDefault("false")
