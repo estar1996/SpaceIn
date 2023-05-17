@@ -20,7 +20,6 @@ public class Region {
 
     private String regionName;
 
-
     @OneToMany
     private List<Post> posts;
 
