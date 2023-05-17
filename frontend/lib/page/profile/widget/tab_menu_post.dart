@@ -21,25 +21,27 @@ class _TabMenuPostState extends State<TabMenuPost> {
           crossAxisCount: 3,
         ),
         itemBuilder: ((context, index) {
-          return InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PostDetailPage()),
-              );
-            },
-            child: Container(
-              color: PRIMARY_COLOR,
-              child: Center(
-                  child: Text(
-                "List $index",
-                style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
-              )),
-            ),
-          );
+          return null;
+
+          // return InkWell(
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => PostDetailPage()),
+          //     );
+          //   },
+          //   child: Container(
+          //     color: PRIMARY_COLOR,
+          //     child: Center(
+          //         child: Text(
+          //       "List $index",
+          //       style: const TextStyle(
+          //           fontSize: 16,
+          //           color: Colors.white,
+          //           fontWeight: FontWeight.bold),
+          //     )),
+          //   ),
+          // );
         }));
   }
 }

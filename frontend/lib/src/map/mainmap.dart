@@ -152,7 +152,7 @@ class _MainMapState extends State<MainMap> {
         ),
         builder: (context) {
           return Container(
-            padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+            padding: const EdgeInsets.fromLTRB(5, 20, 0, 0),
             height: MediaQuery.of(context).size.height * 0.3, // 원하는 크기로 조정
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -178,29 +178,44 @@ class _MainMapState extends State<MainMap> {
                   });
 
                   return ListTile(
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item, // 개별 항목 사용
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
+                    title: SizedBox(
+                      height: 50,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.length > 14
+                                  ? '${item.substring(0, 14)}...'
+                                  : item,
+                              // Rest of your Text widget properties...개별 항목 사용
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              maxLines: 1, // Display text in a single line
+                              overflow: TextOverflow
+                                  .ellipsis, // Add ellipsis if text exceeds available space
                             ),
                           ),
-                        ),
-                        const Icon(Icons.favorite_border_rounded),
-                        const SizedBox(width: 4),
-                        Text(postLikes ?? '0'),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.messenger_outline_rounded),
-                        const SizedBox(width: 4),
-                        Text(commentCount.toString()), // 댓글 개수 표시
-                      ],
+                          const Icon(Icons.favorite_border_rounded),
+                          const SizedBox(width: 4),
+                          Text(
+                            postLikes ?? '0',
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.messenger_outline_rounded),
+                          const SizedBox(width: 4),
+                          Text(
+                            commentCount.toString(),
+                            style: const TextStyle(color: Colors.black54),
+                          ), // 댓글 개수 표시
+                        ],
+                      ),
                     ),
                     onTap: () {
                       // 클릭 시 원하는 페이지로 이동하는 코드 작성
-                      _navigateToPage(postId); // 인덱스 값을 전달
+                      _navigateToPage(postId, latitude, longitude); // 인덱스 값을 전달
                     },
                   );
                 },
@@ -270,11 +285,15 @@ class _MainMapState extends State<MainMap> {
     }
   }
 
-  void _navigateToPage(String key) {
+  void _navigateToPage(String postId, double latitude, double longitude) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PostDetailPage(key: ValueKey(key)),
+        builder: (context) => PostDetailPage(
+          postId: int.parse(postId),
+          latitude: latitude,
+          longitude: longitude,
+        ),
       ),
     );
   }
