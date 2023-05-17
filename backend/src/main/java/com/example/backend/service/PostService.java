@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-
+import java.util.stream.Collectors;
 @Service
 public class PostService {
 
@@ -36,13 +36,24 @@ public class PostService {
     @Autowired
     private RegionRepository regionRepository;
 
+    @Autowired
+    private NaverReverseGeocodingService naverReverseGeocodingService;
 
     public PostResponseDto savePost(String url, PostDto postDto) {
         User user = userRepository.findById(postDto.getUserId())
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
+        String regionName = naverReverseGeocodingService.getReverseGeocode(postDto.getPostLatitude(), postDto.getPostLongitude());
+
+        Region region = regionRepository.findByRegionName(regionName);
+        if (region == null) {
+            region = new Region();
+            region.setRegionName(regionName);
+            regionRepository.save(region); // 새로 만든 지역을 저장합니다.
+        }
 
         Post post = Post.builder().
                 user(user).
+                region(region).
                 fileUrl(url).
                 postLatitude(postDto.getPostLatitude()).
                 postLongitude(postDto.getPostLongitude()).
@@ -86,12 +97,6 @@ public class PostService {
             throw new NoSuchElementException("No posts found for user");
         }
     }
-
-
-
-
-
-
 
     public void deletePost(Long postId) {
         postRepository.deleteById(postId);
@@ -138,7 +143,12 @@ public class PostService {
         return samesamePosts;
     }
 
-
+    public List<String> getPostContentsByRegionName(String regionName) {
+        Region region = regionRepository.findByRegionName(regionName);
+        return postRepository.findByRegion(region).stream()
+                .map(Post::getPostContent)
+                .collect(Collectors.toList());
+    }
 
 
 

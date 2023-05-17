@@ -24,5 +24,5 @@ public class PostDto {
 
     private Double postLongitude;
 
-
+    private String postRegionName;
 }

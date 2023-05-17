@@ -34,8 +34,9 @@ public class Post {
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public Post(User user, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
+    public Post(User user,Region region, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
         this.user = user;
+        this.region = region;
         this.fileUrl = fileUrl;
         this.postLatitude = postLatitude;
         this.postLongitude = postLongitude;

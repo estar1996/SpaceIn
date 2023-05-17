@@ -20,7 +20,7 @@ public class PostResponseDto {
 
     private String userNickname;
 
-    private Long regionId;
+    private String regionName;
 
     private String fileUrl;
 
@@ -40,7 +40,7 @@ public class PostResponseDto {
             userNickname = post.getUser().getUserNickname();
         }
 
-//        regionId = post.getRegion().getRegionId();
+        regionName = post.getRegion().getRegionName();
         fileUrl = post.getFileUrl();
         postLatitude = post.getPostLatitude();
         postLongitude = post.getPostLongitude();

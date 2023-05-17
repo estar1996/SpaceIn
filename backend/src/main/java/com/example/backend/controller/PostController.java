@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.domain.Post;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
+import com.example.backend.service.NaverReverseGeocodingService;
 import com.example.backend.service.PostService;
 import com.example.backend.service.S3Service;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,9 +25,10 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-
     @Autowired
     private S3Service s3Service;
+    @Autowired
+    private NaverReverseGeocodingService naverReverseGeocodingService;
 
 
 //    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -43,9 +45,12 @@ public class PostController {
                                       @RequestParam("postContent") String postContent,
                                       @RequestParam("postLatitude") double postLatitude,
                                       @RequestParam("postLongitude") double postLongitude) throws IOException {
-        System.out.println(multipartFile.getSize());
-        System.out.println(multipartFile.getName());
-        PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude);
+
+
+//        System.out.println(multipartFile.getSize());
+//        System.out.println(multipartFile.getName());
+        String regionName = naverReverseGeocodingService.getReverseGeocode(postLatitude, postLongitude);
+        PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude,regionName);
         String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);
         return newPost;
@@ -89,4 +94,16 @@ public class PostController {
     public List<PostResponseDto> getSameSamePosts(@RequestParam Double latitude, @RequestParam Double longitude) {
         return postService.getSameSamePosts(latitude, longitude);
     }
+
+    @GetMapping("/reverseGeocode")
+    public String getAddress(@RequestParam("latitude") double latitude, @RequestParam("longitude") double longitude) {
+        return naverReverseGeocodingService.getReverseGeocode(latitude, longitude);
+    }
+
+    @GetMapping("/posts/region/{regionName}/contents")
+    public List<String> getPostContentByRegion(@PathVariable String regionName) {
+        return postService.getPostContentsByRegionName(regionName);
+    }
+
+
 }
