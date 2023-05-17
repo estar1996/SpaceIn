@@ -40,4 +40,13 @@ public class UserService {
     public void updateUserNickname(Long userId, String nickname) {
         userRepository.updateUserNickname(userId, nickname);
     }
+
+
+    // 아래 서비스는 미션할때 돈 주는것에서 호출
+    public void changeUserMoney(Long userId, int amount){ //userMoney를 amount만큼 변경
+        userRepository.changeUserMoney(userId, amount);
+    }
+
+
+
 }

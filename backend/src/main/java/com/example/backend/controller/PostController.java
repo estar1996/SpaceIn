@@ -80,8 +80,9 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/likes") // 좋아요 관련
-    public ResponseEntity<Map<String, String>> getPost(@RequestHeader String token, @PathVariable Long postId) {
+    public ResponseEntity<Map<String, String>> getPost(@RequestHeader String Authorization, @PathVariable Long postId) {
 
+        String token = Authorization.substring(7);
         Map<String, String> response = new HashMap<>();
 
         // 토큰에서 유저정보 파싱, 해당 POST에 좋아요를 했는지 중개테이블을 통해 확인

@@ -153,7 +153,7 @@ public class PostService {
             postLikeRepository.save(postLike);
         }
     }
-
+    @Transactional
     public void changePostLikes(Long postId, int value) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post != null) {

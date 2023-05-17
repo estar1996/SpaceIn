@@ -13,6 +13,10 @@ import java.util.Set;
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
 
+    @Modifying //유저의 userMoney수정하는 추상 메서드
+    @Query("UPDATE User u SET u.userMoney = u.userMoney + :amount WHERE u.id = :userId")
+    void changeUserMoney(@Param("userId") Long userId, @Param("amount") int amount);
+
     @Query("SELECT u.items FROM User u WHERE u.id = :userId")
     Set<Item> findItemsByUserId(@Param("userId") Long userId);
     User findByEmail(String email);
