@@ -51,9 +51,6 @@ public class PostController {
     }
 
 
-
-
-
     @GetMapping("/{postId}")
     public PostResponseDto getPost(@PathVariable Long postId, @RequestParam Double latitude, @RequestParam Double longitude) {
         return postService.getPost(postId, latitude, longitude);
@@ -83,30 +80,38 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/likes") // 좋아요 관련
-    public ResponseEntity<Map<String, Boolean>> getPost(@RequestHeader String token, @PathVariable Long postId) {
+    public ResponseEntity<Map<String, String>> getPost(@RequestHeader String token, @PathVariable Long postId) {
 
-        Map<String, Boolean> response = new HashMap<>();
+        Map<String, String> response = new HashMap<>();
 
         // 토큰에서 유저정보 파싱, 해당 POST에 좋아요를 했는지 중개테이블을 통해 확인
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);
-        System.out.println("유저아이디"+user.getId()+"포스트아이디"+postId);
-        boolean isLike = postService.isLikeExists(user.getId(),postId); // 여기 로직 들어감
-        System.out.println("좋아요여부"+isLike);
-
+        Long userId = user.getId();
         // 확인 후 좋아요가 안 되어있으면 false, 좋아요가 되어있으면 true를 isLike변수에 할당
+        boolean isLike = postService.isLikeExists(userId,postId); // 여기 로직 들어감
 
-        // 좋아요를 아직 안 했다면 해당 요청이 왔을때 중개 테이블에 추가, 해당 글의 Like += 1
-        // return "좋아요 완료"
 
-        // 좋아요를 했다면 해당 요청이 왔을 때 중개 테이블에서 삭제 및 좋아요 Like -= 1
-        // return "좋아요 취소 완료"
+        if (isLike) { // 좋아요를 했다면 해당 요청이 왔을 때 중개 테이블에서 삭제 및 좋아요 Like -= 1
+            postService.removePostLikeByUserIdAndPostId(userId,postId);
+            postService.changePostLikes(postId,-1); // 좋아요 갯수 -1
+            // return "좋아요 취소 완료"
+            response.put("좋아요","취소됨");
+            return ResponseEntity.ok()
+                    .body(response);
+
+        } else { // 좋아요를 아직 안 했다면 해당 요청이 왔을때 중개 테이블에 추가, 해당 글의 Like += 1
+            postService.addPostLikeByUserIdAndPostId(userId, postId);
+            postService.changePostLikes(postId,1); // 좋아요 갯수 + 1
+            // return "좋아요 완료"
+            response.put("좋아요","추가됨");
+            return ResponseEntity.ok()
+                    .body(response);
+        }
+
 
         // 프론트의 경우, 최초 가져올 때 해당 유저가 좋아요 했는지 아닌지 여부를 전달
         // 반환값을 받으면 버튼 모양을 좋아요 <-> 좋아요 취소로 변경하도록 설정
-        response.put("응답", isLike);
-        return ResponseEntity.ok()
-                .body(response);
     }
 }
