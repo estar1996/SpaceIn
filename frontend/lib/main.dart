@@ -9,8 +9,33 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // bool back = false;
+  // int time = 0;
+  // int duration = 1000;
+  // Future<bool> willPop() async {
+  //   int now = DateTime.now().millisecondsSinceEpoch;
+  //   if (Navigator.of(context).canPop()) {
+  //     return true;
+  //   } else if (back && time >= now) {
+  //     back = false;
+  //     exit(0);
+  //   } else {
+  //     time = DateTime.now().millisecondsSinceEpoch + duration;
+  //     print("again tap");
+  //     back = true;
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text("Press again the button to exit")));
+  //   }
+  //   return false;
+  // }
 
   @override
   Widget build(BuildContext context) {

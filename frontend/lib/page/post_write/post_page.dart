@@ -20,6 +20,7 @@ import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:frontend/common/navbar.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -105,8 +106,8 @@ class _PostPageState extends State<PostPage> {
     'assets/background/bg_sky.png',
     'assets/background/bg_sky2.png',
     'assets/background/bg_twinkle.png',
-    'assets/background/pg_paper.png',
-    'assets/background/whiteSpace.png',
+    'assets/background/bg_paper.png',
+    'assets/background/bg_whiteSpace.png',
   ];
   List<Widget> bgButtonList = [];
 
@@ -123,7 +124,7 @@ class _PostPageState extends State<PostPage> {
   //캡쳐에 필요한 값들
   final int _counter = 0;
   late Uint8List? _imageFile;
-  double _appBarHeight = 56.0;
+  final double _appBarHeight = 56.0;
   bool _isCaptured = false;
 
   ScreenshotController screenshotController = ScreenshotController();
@@ -367,6 +368,18 @@ class _PostPageState extends State<PostPage> {
     );
   }
 
+  Future<Uint8List> testComporessList(Uint8List list) async {
+    var result = await FlutterImageCompress.compressWithList(
+      list,
+      minHeight: 2152,
+      minWidth: 1536,
+      quality: 40,
+    );
+    print(list.length);
+    print(result.length);
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -392,54 +405,57 @@ class _PostPageState extends State<PostPage> {
               toolbarHeight: _appBarHeight,
               backgroundColor: Colors.transparent,
               elevation: 0.0,
-              leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(
-                  Icons.clear,
-                  color: Colors.black,
-                ),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    // print(text);
-                    setState(() {
-                      _showDrawingPage = false;
-                      _appBarHeight = 0;
-                      _isCaptured = true;
-                    });
-                    screenshotController.capture().then((image) async {
-                      MultipartFile multipartFile = MultipartFile.fromBytes(
-                        image!,
-                        filename: 'image.jpg',
-                        contentType: contentType,
-                      );
-                      _gainCurrentLocation(context, multipartFile);
-                      // setState(() {
-                      //   _imageFile = image;
-                      //   _appBarHeight = 56.0;
-                      //   _isCaptured = false;
-                      // });
-                      _starToast();
+              leading: !_isCaptured
+                  ? IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(
+                        Icons.clear,
+                        color: Colors.black,
+                      ),
+                    )
+                  : null,
+              actions: !_isCaptured
+                  ? [
+                      IconButton(
+                        onPressed: () {
+                          // print(text);
+                          setState(() {
+                            _showDrawingPage = false;
+                            _isCaptured = true;
+                          });
+                          screenshotController.capture().then((image) async {
+                            final result = await testComporessList(image!);
 
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (context) => const NavBar(index: 1),
+                            MultipartFile multipartFile =
+                                MultipartFile.fromBytes(
+                              result,
+                              filename: 'image.jpg',
+                              contentType: contentType,
+                            );
+
+                            _gainCurrentLocation(context, multipartFile);
+
+                            _starToast();
+
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => const NavBar(index: 1),
+                              ),
+                              (route) => false,
+                            );
+                          }).catchError((onError) {
+                            print('여긴 423 $onError');
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.check,
+                          color: Colors.black,
                         ),
-                        (route) => false,
-                      );
-                    }).catchError((onError) {
-                      print('여긴 423 $onError');
-                    });
-                  },
-                  icon: const Icon(
-                    Icons.check,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
+                      ),
+                    ]
+                  : null,
             ),
             body: SizedBox(
               width: double.infinity,
