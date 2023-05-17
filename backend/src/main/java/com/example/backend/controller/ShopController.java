@@ -38,8 +38,9 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
 //    ],
 //    }
     @PostMapping("/checkitem")
-    public ResponseEntity<HashMap<String,Object>> checkItem(@RequestHeader String token) {
+    public ResponseEntity<HashMap<String,Object>> checkItem(@RequestHeader String Authorization) {
         //header의 token을 받아 유저정보 파악
+        String token = Authorization.substring(7);
         List<?> mylist = new ArrayList<>();
 
         Claims claims = loginService.getClaimsFromToken(token);
@@ -77,7 +78,8 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
     }
 
     @PostMapping("/buyitem")
-    public ResponseEntity<Map<String, Object>> buyItem(@RequestHeader String token, @RequestBody BuyItemRequestDto request) {
+    public ResponseEntity<Map<String, Object>> buyItem(@RequestHeader String Authorization, @RequestBody BuyItemRequestDto request) {
+        String token = Authorization.substring(7);
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);

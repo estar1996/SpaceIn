@@ -1,16 +1,19 @@
 package com.example.backend.service;
 
 import com.example.backend.domain.Post;
+import com.example.backend.domain.PostLike;
 import com.example.backend.domain.Region;
 import com.example.backend.domain.User;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
+import com.example.backend.repository.PostLikeRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.RegionRepository;
 import com.example.backend.repository.UserRepository;
 import com.sun.xml.bind.v2.runtime.Coordinator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +32,9 @@ public class PostService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PostLikeRepository postLikeRepository;
 
     @Autowired
     private S3Service s3Service;
@@ -139,8 +145,36 @@ public class PostService {
         return samesamePosts;
     }
 
+    public boolean isLikeExists(Long userId, Long postId) {
+        return postLikeRepository.existsByUser_IdAndPost_PostId(userId, postId);
+    }
 
+    @Transactional
+    public void removePostLikeByUserIdAndPostId(Long userId, Long postId) {
+        PostLike postLike = postLikeRepository.findByUser_IdAndPost_PostId(userId, postId);
+        if (postLike != null) {
+            postLikeRepository.delete(postLike);
+        }
+    }
 
+    @Transactional
+    public void addPostLikeByUserIdAndPostId(Long userId, Long postId) {
+        User user = userRepository.findById(userId).orElse(null);
+        Post post = postRepository.findById(postId).orElse(null);
 
-
+        if (user != null && post != null) {
+            PostLike postLike = new PostLike();
+            postLike.setUser(user);
+            postLike.setPost(post);
+            postLikeRepository.save(postLike);
+        }
+    }
+    @Transactional
+    public void changePostLikes(Long postId, int value) {
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post != null) {
+            post.setPostLikes(post.getPostLikes() + value);  // 새로운 postlikes 값을 설정
+            postRepository.save(post);  // 변경된 내용을 저장
+        }
+    }
 }
