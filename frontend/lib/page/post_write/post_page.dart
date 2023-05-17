@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/page/post_write/sticker/background_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/page/post_write/drawing/drawing_page.dart';
@@ -17,6 +18,8 @@ import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
+
+import 'package:frontend/common/navbar.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -130,6 +133,8 @@ class _PostPageState extends State<PostPage> {
 
   MediaType contentType = MediaType.parse('image/jpeg');
 
+  late FToast fToast;
+
   @override
   void initState() {
     // 초기 이미지 목록에 따른 버튼을 생성하기 위한 state 저장
@@ -147,6 +152,16 @@ class _PostPageState extends State<PostPage> {
           changeBackgroundImage: _changeBackgroundImage,
           changeBackgroundType: _changeBackgroundType));
     }
+
+    fToast = FToast();
+    fToast.init(context);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
   }
 
   void _changeBackgroundImage(String str) {
@@ -256,76 +271,100 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
-  Future<dynamic> ShowCapturedWidget(
-      BuildContext context, Uint8List capturedImage) {
-    return showDialog(
-      useSafeArea: false,
-      context: context,
-      builder: (context) => Scaffold(
-        appBar: AppBar(
-          title: const Text("Captured widget screenshot"),
-        ),
-        body: Center(
-            child: capturedImage != null
-                ? Image.memory(capturedImage)
-                : Container()),
-      ),
-    );
-  }
-
   // 글을 작성완료하는 현재 위치를 구해서 post하는 함수
-  void _gainCurrentLocation(MultipartFile multipartfile) async {
+  void _gainCurrentLocation(
+      BuildContext context, MultipartFile multipartfile) async {
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: geolocatorEnums.LocationAccuracy.high,
+    );
+    final NLatLng newPosition = NLatLng(
+      double.parse(position.latitude.toStringAsFixed(5)),
+      double.parse(position.longitude.toStringAsFixed(5)),
+    );
+    // print('position은 ${newPosition.latitude}, ${newPosition.longitude}');
+
+    FormData formData = FormData();
+
+    formData.fields.add(const MapEntry('userId', '1'));
+
+    formData.fields.add(MapEntry('postContent', text));
+
+    formData.fields
+        .add(MapEntry('postLatitude', newPosition.latitude.toString()));
+
+    formData.fields
+        .add(MapEntry('postLongitude', newPosition.longitude.toString()));
+
+    formData.files.add(MapEntry('multipartFile', multipartfile));
+
+    Dio dio = Dio();
+
     try {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: geolocatorEnums.LocationAccuracy.high,
+      Response response = await dio.post(
+        'http://k8a803.p.ssafy.io:8080/api/posts',
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+        ),
       );
-      final NLatLng newPosition = NLatLng(
-        double.parse(position.latitude.toStringAsFixed(3)),
-        double.parse(position.longitude.toStringAsFixed(3)),
-      );
-      print('position은 ${newPosition.latitude}, ${newPosition.longitude}');
-
-      // Map<String, dynamic> requestParam = {
-      //   'userId': 1,
-      //   'postContent': text,
-      //   'postLatitude': newPosition.latitude.toString(),
-      //   'postLongitude': newPosition.longitude.toString(),
-      // };
-
-      FormData formData = FormData();
-
-      formData.fields.add(const MapEntry('userId', '1'));
-
-      formData.fields.add(MapEntry('postContent', text));
-
-      formData.fields
-          .add(MapEntry('postLatitude', newPosition.latitude.toString()));
-
-      formData.fields
-          .add(MapEntry('postLongitude', newPosition.longitude.toString()));
-
-      formData.files.add(MapEntry('multipartFile', multipartfile));
-
-      Dio dio = Dio();
-      // dio.options.headers["Authorization"] = SecureStorage().getAccessToken();
-
-      try {
-        Response response = await dio.post(
-          'http://k8a803.p.ssafy.io:8080/api/posts',
-          data: formData,
-          options: Options(
-            headers: {'Content-Type': 'multipart/form-data'},
-          ),
-        );
-        print(response.data);
-      } catch (e) {
-        print(e);
-      }
 
       // print(response);
     } catch (e) {
-      print(e);
+      _errorToast();
+      // print(e);
     }
+  }
+
+  _starToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.green,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("성공적으로 별을 남겼습니다."),
+        ],
+      ),
+    );
+
+    fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: const Duration(seconds: 2),
+    );
+  }
+
+  _errorToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.red[400],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("별을 남기는데 실패했습니다."),
+        ],
+      ),
+    );
+
+    fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: const Duration(seconds: 2),
+    );
   }
 
   @override
@@ -347,7 +386,7 @@ class _PostPageState extends State<PostPage> {
                   ),
           ),
           child: Scaffold(
-            resizeToAvoidBottomInset: false,
+            resizeToAvoidBottomInset: true,
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               toolbarHeight: _appBarHeight,
@@ -371,22 +410,28 @@ class _PostPageState extends State<PostPage> {
                       _appBarHeight = 0;
                       _isCaptured = true;
                     });
-
                     screenshotController.capture().then((image) async {
-                      ShowCapturedWidget(context, image!);
                       MultipartFile multipartFile = MultipartFile.fromBytes(
-                        image,
+                        image!,
                         filename: 'image.jpg',
                         contentType: contentType,
                       );
-                      _gainCurrentLocation(multipartFile);
-                      setState(() {
-                        _imageFile = image;
-                        _appBarHeight = 56.0;
-                        _isCaptured = false;
-                      });
+                      _gainCurrentLocation(context, multipartFile);
+                      // setState(() {
+                      //   _imageFile = image;
+                      //   _appBarHeight = 56.0;
+                      //   _isCaptured = false;
+                      // });
+                      _starToast();
+
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => const NavBar(index: 1),
+                        ),
+                        (route) => false,
+                      );
                     }).catchError((onError) {
-                      print(onError);
+                      print('여긴 423 $onError');
                     });
                   },
                   icon: const Icon(
