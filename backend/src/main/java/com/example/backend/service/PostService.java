@@ -5,6 +5,7 @@ import com.example.backend.domain.Region;
 import com.example.backend.domain.User;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
+import com.example.backend.repository.PostLikeRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.RegionRepository;
 import com.example.backend.repository.UserRepository;
@@ -29,6 +30,9 @@ public class PostService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PostLikeRepository postLikeRepository;
 
     @Autowired
     private S3Service s3Service;
@@ -123,8 +127,8 @@ public class PostService {
         return samesamePosts;
     }
 
-
-
-
+    public boolean isLikeExists(Long userId, Long postId) {
+        return postLikeRepository.existsByUser_IdAndPost_PostId(userId, postId);
+    }
 
 }

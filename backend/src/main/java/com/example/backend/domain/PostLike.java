@@ -15,9 +15,12 @@ public class PostLike {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long postLikeId;
 
-
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "post_post_id")
+    private Post post;
 
 }

@@ -17,4 +17,5 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     @Query("select r from Post r where r.postLatitude = :latitude and r.postLongitude = :longitude")
     List<Post> findByPostLatitudeAndPostLongitude(@Param("latitude") double latitude, @Param("longitude") double longitude);
 
+
 }
