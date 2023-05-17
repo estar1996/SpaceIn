@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.domain.Item;
 import com.example.backend.domain.User;
+import com.example.backend.dto.BuyItemRequestDto;
 import com.example.backend.dto.ItemDto;
 import com.example.backend.service.ItemService;
 import com.example.backend.service.LoginService;
@@ -76,12 +77,14 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
     }
 
     @PostMapping("/buyitem")
-    public ResponseEntity<Map<String, Object>> buyItem(@RequestHeader String token, @RequestBody Long itemId) {
+    public ResponseEntity<Map<String, Object>> buyItem(@RequestHeader String token, @RequestBody BuyItemRequestDto request) {
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);
+        Long itemId = request.getItemId();
         Item item = itemService.getItemByItemId(itemId);
         String result = itemService.buyItem(item, user);
+
 
         HashMap<String, Object> response = new HashMap<>();
         response.put("result", result);

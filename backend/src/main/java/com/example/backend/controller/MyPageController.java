@@ -4,6 +4,7 @@ package com.example.backend.controller;
 import com.example.backend.domain.Item;
 import com.example.backend.domain.Post;
 import com.example.backend.domain.User;
+import com.example.backend.dto.ChangeNickNameRequestDto;
 import com.example.backend.dto.ItemDto;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
@@ -105,12 +106,13 @@ public class MyPageController {
 
     // 닉네임변경
     @PostMapping("/changeNickname")
-    public ResponseEntity<Map<String, Object>> deleteUser(@RequestHeader String token, @RequestBody String nickName) {
+    public ResponseEntity<Map<String, Object>> deleteUser(@RequestHeader String token, @RequestBody ChangeNickNameRequestDto request) {
         HashMap<String, Object> response = new HashMap<>();
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);
         Long id = user.getId();
+        String nickName = request.getNickName();
 
         try {
             // 사용자 닉네임 업데이트 로직
