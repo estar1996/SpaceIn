@@ -11,6 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class PostLike {
 
+
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long postLikeId;
 

@@ -14,14 +14,15 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long itemId;
 
+    @Column
     private String itemImg;
 
+    @Column
     private Integer itemPrice;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column
+    private String itemName;
 
 }

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -19,21 +20,9 @@ public class PostDto {
 
     private String postContent;
 
-    private String postImage;
-
     private Double postLatitude;
 
     private Double postLongitude;
 
 
-    public Post toEntity(User user) {
-        Post post = Post.builder()
-                .user(user)
-                .postContent(postContent)
-                .postImage(postImage)
-                .postLatitude(postLatitude)
-                .postLongitude(postLongitude)
-                .build();
-        return post;
-    }
 }

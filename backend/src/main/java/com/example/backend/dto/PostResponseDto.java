@@ -15,40 +15,38 @@ import java.time.LocalDate;
 public class PostResponseDto {
 
     private Long postId;
+
     private Long userId;
+
     private String userNickname;
+
     private Long regionId;
 
-    private String postContent;
-    private String postImg;
+    private String fileUrl;
 
     private Double postLatitude;
 
     private Double postLongitude;
 
     private LocalDate postDate;
-
+    private String postContent;
     private Integer postLikes;
 
 
-    public static PostResponseDto fromEntity(Post post) {
-        PostResponseDto postResponseDto = new PostResponseDto();
-        postResponseDto.setPostId(post.getPostId());
-
+    public PostResponseDto(Post post) {
+        postId = post.getPostId();
         if (post.getUser() != null) {
-            postResponseDto.setUserId(post.getUser().getId());
-            postResponseDto.setUserNickname(post.getUser().getUserNickname());
+            userId = post.getUser().getId();
+            userNickname = post.getUser().getUserNickname();
         }
 
-        if (post.getRegion() != null) {
-            postResponseDto.setRegionId(post.getRegion().getRegionId());
-        }
-        postResponseDto.setPostContent(post.getPostContent());
-        postResponseDto.setPostLatitude(post.getPostLatitude());
-        postResponseDto.setPostImg(post.getPostImage());
-        postResponseDto.setPostLongitude(post.getPostLongitude());
-        postResponseDto.setPostDate(post.getPostDate());
-        postResponseDto.setPostLikes(post.getPostLikes());
-        return postResponseDto;
+//        regionId = post.getRegion().getRegionId();
+        fileUrl = post.getFileUrl();
+        postLatitude = post.getPostLatitude();
+        postLongitude = post.getPostLongitude();
+        postDate = post.getPostDate();
+        postContent = post.getPostContent();
+//        postLikes = post.getPostLikes();
+
     }
 }
