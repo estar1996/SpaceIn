@@ -54,6 +54,7 @@ public class PostService {
                 postLongitude(postDto.getPostLongitude()).
                 postDate(LocalDate.now()).
                 postLikes(0).
+                postContent(postDto.getPostContent()).
                 build();
 
         Post savedPost = postRepository.save(post);
@@ -83,6 +84,21 @@ public class PostService {
 
         return new PostResponseDto(post);
     }
+
+    public List<PostResponseDto> getUserPost(Long userId) {
+        List<Post> posts = postRepository.findByUserId(userId);
+        if (!posts.isEmpty()) {
+            return posts.stream().map(PostResponseDto::new).collect(Collectors.toList());
+        } else {
+            throw new NoSuchElementException("No posts found for user");
+        }
+    }
+
+
+
+
+
+
 
     public void deletePost(Long postId) {
         postRepository.deleteById(postId);

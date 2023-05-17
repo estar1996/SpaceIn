@@ -42,19 +42,43 @@ public class PostController {
 
 
 
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public PostResponseDto savePost(@RequestParam MultipartFile multipartFile, @RequestParam PostDto postDto) throws IOException {
+//        String url = s3Service.upload(multipartFile, "spacein", "space");
+//        PostResponseDto newPost = postService.savePost(url, postDto);
+//        return newPost;
+//
+//    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public PostResponseDto savePost(@RequestPart MultipartFile multipartFile, @RequestPart PostDto postDto) throws IOException {
+    public PostResponseDto savePost(@RequestPart("multipartFile") MultipartFile multipartFile,
+                                      @RequestParam("userId") Long userId,
+                                      @RequestParam("postContent") String postContent,
+                                      @RequestParam("postLatitude") double postLatitude,
+                                      @RequestParam("postLongitude") double postLongitude) throws IOException {
+        System.out.println(multipartFile.getSize());
+        System.out.println(multipartFile.getName());
+        PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude);
         String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);
         return newPost;
-
     }
+//    @ModelAttribute
 
 
     @GetMapping("/{postId}")
     public PostResponseDto getPost(@PathVariable Long postId, @RequestParam Double latitude, @RequestParam Double longitude) {
         return postService.getPost(postId, latitude, longitude);
     }
+
+    //유저별 게시물 조회
+    @GetMapping("/{userId}/posts")
+    public List<PostResponseDto> getUserPost(@PathVariable Long userId) {
+        return postService.getUserPost(userId);
+    }
+
+
+
 
 
     @GetMapping("/all")
