@@ -28,13 +28,16 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public boolean deleteByEmail(String email) {
+    public boolean deleteById(Long id) {
         try {
-            userRepository.deleteByEmail(email);
+            userRepository.deleteById(id);
             return true; // 삭제 성공
         } catch (Exception e) {
             e.printStackTrace();
             return false; // 삭제 실패
         }
+    }
+    public void updateUserNickname(Long userId, String nickname) {
+        userRepository.updateUserNickname(userId, nickname);
     }
 }

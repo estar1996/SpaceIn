@@ -73,7 +73,6 @@ public class MyPageController {
 
         response.put("postList", myPostList);
 
-
         // 4. 미션?
 
         return ResponseEntity.ok()
@@ -87,21 +86,47 @@ public class MyPageController {
         HashMap<String, Object> response = new HashMap<>();
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long id = user.getId();
 
-        boolean deletionResult = userService.deleteByEmail(email);
+        boolean deletionResult = userService.deleteById(id);
         if (deletionResult) {
-            response.put("result","회원탈퇴가 완료되었습니다.")
+            response.put("result","회원탈퇴가 완료되었습니다.");
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(response);
 
         } else {
-            response.put("result","회원탈퇴가 성공적으로 수행되지 못했습니다.")
+            response.put("result","회원탈퇴가 성공적으로 수행되지 못했습니다.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(response)
+                    .body(response);
         }
     };
 
     // 닉네임변경
-    
+    @PostMapping("/changeNickname")
+    public ResponseEntity<Map<String, Object>> deleteUser(@RequestHeader String token, @RequestBody String nickName) {
+        HashMap<String, Object> response = new HashMap<>();
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long id = user.getId();
+
+        try {
+            // 사용자 닉네임 업데이트 로직
+            userService.updateUserNickname(id, nickName);
+
+            response.put("result", "닉네임" + nickName + "(으)로 변경 완료");
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(response);
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            response.put("result", "닉네임 변경에 실패하였습니다");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(response);
+        }
+
+    }
 }
