@@ -394,7 +394,11 @@ class _MainMapState extends State<MainMap> {
     final addableMarkers = markers.toSet();
     _controller?.addOverlayAll(addableMarkers);
 
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        // Update state here
+      });
+    }
 
     for (final marker in addableMarkers) {
       marker.setOnTapListener((marker) {

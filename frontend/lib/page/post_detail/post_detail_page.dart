@@ -54,7 +54,21 @@ class PostDetailPage extends StatefulWidget {
 }
 
 class _PostDetailPageState extends State<PostDetailPage> {
-  int currentIndex = 0; // 현재 보고 있는 포스트의 인덱스
+  int currentIndex = -1; // 현재 표시 중인 게시물의 인덱스
+  late PageController pageController; // PageView용 컨트롤러
+
+  @override
+  void initState() {
+    super.initState();
+    pageController = PageController(initialPage: currentIndex);
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose(); // Dispose the page controller
+    super.dispose();
+  }
+
   Future<Post?> fetchPost(int postId, double latitude, double longitude) async {
     try {
       final response = await Dio().get(
@@ -69,14 +83,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
         final Map<String, dynamic> jsonData =
             response.data as Map<String, dynamic>;
         final post = Post.fromJson(jsonData);
-        print('post 성공');
+        print('게시물 가져오기 성공');
         return post;
       } else {
-        print('Error: ${response.statusCode}');
+        print('오류: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Error: $e');
+      print('오류: $e');
       return null;
     }
   }
@@ -104,14 +118,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
             userId: json['userId'] as int,
           );
         }).toList();
-        print('샘샘성공');
+        print('주변 게시물 가져오기 성공');
         print(posts);
-        return posts.where((post) => post.postId == widget.postId).toList();
+        return posts;
       } else {
-        throw Exception('Error: ${response.statusCode}');
+        throw Exception('오류: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      throw Exception('오류: $e');
     }
   }
 
@@ -127,14 +141,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
         final List<Post> comments = jsonResult.map((json) {
           return Post.fromJson(json);
         }).toList();
-        print('comment성공');
+        print('댓글 개수 가져오기 성공');
         return comments.length;
       } else {
-        print('Error: ${response.statusCode}');
+        print('오류: ${response.statusCode}');
         return 0;
       }
     } catch (e) {
-      print('Error: $e');
+      print('오류: $e');
       return 0;
     }
   }
@@ -144,9 +158,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
     return postIndex;
   }
 
+  void updateCurrentIndex(int index) {
+    setState(() {
+      currentIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    PageController pageController = PageController(initialPage: 0);
     var size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.black,
@@ -172,82 +191,111 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
             // postId와 일치하는 게시물의 인덱스를 가져옴
             final postIndexFuture = fetchPostIndex(posts);
-            return SizedBox(
-              width: size.width,
-              height: size.height,
-              child: PageView.builder(
-                controller: pageController,
-                scrollDirection: Axis.vertical, // 스와이프 방향을 위 아래로 설정
-                itemCount: posts.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final post = posts[index];
-                  final bool isCurrentPage = index == currentIndex;
-                  if (index != currentIndex) {
-                    return Container(); // 현재 보고 있는 포스트와 인덱스가 다른 경우 빈 컨테이너 반환
-                  }
 
-                  return Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(post.fileUrl ??
-                            'assets\backgroundwhiteSpace.png'), // fileUrl을 이미지로 설정
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.center,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color: const Color.fromRGBO(30, 30, 30, 0.5),
-                                ),
-                                padding: const EdgeInsets.fromLTRB(6, 2, 6, 2),
-                                child: Text(
-                                  post.userNickname,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        if (isCurrentPage)
-                          Container(
-                            child: Align(
-                              alignment: Alignment.topRight,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  CommentCount(post),
-                                  LikeCount(post),
-                                ],
-                              ),
+            print(posts);
+            print("@@@@@@@@");
+            return FutureBuilder<int>(
+              future: postIndexFuture,
+              builder: (context, indexSnapshot) {
+                if (indexSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (indexSnapshot.hasData) {
+                  final postIndex = indexSnapshot.data!;
+
+                  // int currentIndex = postIndex; // 현재 보고 있는 포스트의 인덱스
+                  PageController pageController = PageController(
+                      initialPage:
+                          (currentIndex == -1 && currentIndex != postIndex
+                              ? postIndex
+                              : (currentIndex != postIndex
+                                  ? currentIndex
+                                  : postIndex)),
+                      viewportFraction: 1.0,
+                      keepPage: true);
+                  print(posts.length);
+                  return SizedBox(
+                    width: size.width,
+                    height: size.height,
+                    child: PageView(
+                      controller: pageController,
+                      scrollDirection: Axis.vertical,
+                      children: List.generate(posts.length, (index) {
+                        final post = posts[index];
+
+                        return Container(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(post.fileUrl ??
+                                  'assets/background/whiteSpace.png'), // fileUrl을 이미지로 설정
+                              fit: BoxFit.cover,
                             ),
                           ),
-                      ],
+                          child: Stack(
+                            children: [
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          color: const Color.fromRGBO(
+                                              30, 30, 30, 0.5),
+                                        ),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 4, 8, 4),
+                                        child: Text(
+                                          post.userNickname,
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 40,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      CommentCount(post),
+                                      LikeCount(post),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                      onPageChanged: (int index) {
+                        // pageController.jumpToPage(index);
+                        updateCurrentIndex(index);
+                      },
                     ),
                   );
-                },
-                onPageChanged: (int index) {
-                  setState(() {
-                    currentIndex = index; // 현재 보고 있는 포스트의 인덱스 업데이트
-                  });
-                },
-              ),
+                } else if (indexSnapshot.hasError) {
+                  return Text('오류: ${indexSnapshot.error}');
+                } else {
+                  return const Text('데이터 없음');
+                }
+              },
             );
           } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Text('오류: ${snapshot.error}');
           } else {
-            return const Text('No data available');
+            return const Text('데이터 없음');
           }
         },
       ),
@@ -284,11 +332,21 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     Icons.chat_bubble_outline_rounded,
                     color: Colors.white,
                     size: 35,
+                    shadows: <Shadow>[
+                      Shadow(color: Colors.black54, blurRadius: 15.0)
+                    ],
                   ),
                   Text(
                     commentCount.toString(),
                     style: const TextStyle(
                       color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 15.0, // shadow blur
+                          color: Colors.black87, // shadow color
+                          offset: Offset(0, 0), // how much shadow will be shown
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -296,30 +354,36 @@ class _PostDetailPageState extends State<PostDetailPage> {
             ),
           );
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+          return Text('오류: ${snapshot.error}');
         } else {
-          return const Text('No data available');
+          return const Text('댓글 없음');
         }
       },
     );
   }
 
-  Widget LikeCount(post) {
+  Widget LikeCount(Post post) {
     return Container(
-      // decoration: BoxDecoration(color: Colors.blue),
-      padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
       child: Column(
         children: [
           const Icon(
-            Icons.favorite_border_rounded,
+            Icons.favorite_outline_rounded,
             color: Colors.white,
             size: 35,
+            shadows: <Shadow>[Shadow(color: Colors.black54, blurRadius: 15.0)],
           ),
           Text(
             post.postLikes.toString(),
-            // commentCount,
             style: const TextStyle(
               color: Colors.white,
+              shadows: [
+                Shadow(
+                  blurRadius: 15.0, // shadow blur
+                  color: Colors.black87, // shadow color
+                  offset: Offset(0, 0), // how much shadow will be shown
+                ),
+              ],
             ),
           ),
         ],
