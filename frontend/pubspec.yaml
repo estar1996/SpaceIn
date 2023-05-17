@@ -51,6 +51,7 @@ dependencies:
   flutter_secure_storage: ^8.0.0
   google_sign_in: ^6.1.0
   fluttertoast: ^8.2.1
+  flutter_image_compress: ^2.0.3
 
 dev_dependencies:
   flutter_test:
@@ -99,8 +100,9 @@ flutter:
     - assets/background/bg_sky.png
     - assets/background/bg_sky2.png
     - assets/background/bg_twinkle.png
-    - assets/background/pg_paper.png
-    - assets/background/whiteSpace.png
+    - assets/background/bg_paper.png
+    - assets/background/bg_whitespace.png
+    - assets/background/bg_blackspace.png
     - lib/src/map/markerlist.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

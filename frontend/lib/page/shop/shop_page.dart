@@ -82,8 +82,9 @@ class _ShopPageState extends State<ShopPage> {
     'assets/background/bg_sky.png',
     'assets/background/bg_sky2.png',
     'assets/background/bg_twinkle.png',
-    'assets/background/pg_paper.png',
-    'assets/background/whiteSpace.png',
+    'assets/background/bg_paper.png',
+    'assets/background/bg_whiteSpace.png',
+    'assets/background/bg_blackspace.png',
   ];
 
   List<bool> bgHaveList = [];
