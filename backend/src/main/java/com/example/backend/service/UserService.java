@@ -27,4 +27,14 @@ public class UserService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    public boolean deleteByEmail(String email) {
+        try {
+            userRepository.deleteByEmail(email);
+            return true; // 삭제 성공
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // 삭제 실패
+        }
+    }
 }
