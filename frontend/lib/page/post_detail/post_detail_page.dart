@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/page/post_detail/comment_modal.dart';
 import 'package:dio/dio.dart';
+import 'dart:async';
 
 class Post {
   final int postId;
@@ -56,10 +57,18 @@ class PostDetailPage extends StatefulWidget {
 class _PostDetailPageState extends State<PostDetailPage> {
   int currentIndex = -1; // 현재 표시 중인 게시물의 인덱스
   late PageController pageController; // PageView용 컨트롤러
+  int commentCount = 0; // 댓글 개수 변수 추가
+  List<Post> posts = []; // posts 리스트 선언 및 초기화
 
   @override
   void initState() {
     super.initState();
+    fetchPostsByLocation(widget.latitude, widget.longitude)
+        .then((fetchedPosts) {
+      setState(() {
+        posts = fetchedPosts;
+      });
+    });
     pageController = PageController(initialPage: currentIndex);
   }
 
@@ -129,6 +138,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  // bool isLoading = false; // 로딩 상태 변수 추가
   Future<int> fetchCommentCount(int postId) async {
     try {
       final response = await Dio().get(
@@ -153,6 +163,41 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  // Future<void> fetchCommentCount(int postId) async {
+  //   if (isLoading) return; // 이미 로딩 중이라면 중복 호출 방지
+
+  //   try {
+  //     isLoading = true; // 로딩 시작
+  //     final response = await Dio().get(
+  //       'http://k8a803.p.ssafy.io:8080/api/comment/comments/',
+  //       queryParameters: {'postId': postId},
+  //     );
+  //     if (mounted) {
+  //       if (response.statusCode == 200) {
+  //         final List<dynamic> jsonResult = response.data as List<dynamic>;
+  //         print('댓글 개수 가져오기 성공');
+  //         setState(() {
+  //           commentCount = jsonResult.length; // 댓글 개수 업데이트
+  //         });
+  //       } else {
+  //         print('오류: ${response.statusCode}');
+  //         setState(() {
+  //           commentCount = 0; // 오류 발생 시 댓글 개수를 0으로 설정
+  //         });
+  //       }
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       print('오류: $e');
+  //       setState(() {
+  //         commentCount = 0; // 오류 발생 시 댓글 개수를 0으로 설정
+  //       });
+  //     }
+  //   } finally {
+  //     isLoading = false; // 로딩 종료
+  //   }
+  // }
+
   Future<int> fetchPostIndex(List<Post> posts) async {
     final postIndex = posts.indexWhere((post) => post.postId == widget.postId);
     return postIndex;
@@ -161,6 +206,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void updateCurrentIndex(int index) {
     setState(() {
       currentIndex = index;
+      fetchCommentCount(
+          posts[index].postId); // currentIndex 변경 시 fetchCommentCount 호출
     });
   }
 
@@ -192,8 +239,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
             // postId와 일치하는 게시물의 인덱스를 가져옴
             final postIndexFuture = fetchPostIndex(posts);
 
-            print(posts);
-            print("@@@@@@@@");
             return FutureBuilder<int>(
               future: postIndexFuture,
               builder: (context, indexSnapshot) {
@@ -204,14 +249,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
                   // int currentIndex = postIndex; // 현재 보고 있는 포스트의 인덱스
                   PageController pageController = PageController(
-                      initialPage:
-                          (currentIndex == -1 && currentIndex != postIndex
-                              ? postIndex
-                              : (currentIndex != postIndex
-                                  ? currentIndex
-                                  : postIndex)),
-                      viewportFraction: 1.0,
-                      keepPage: true);
+                    initialPage:
+                        (currentIndex == -1 && currentIndex != postIndex
+                            ? postIndex
+                            : (currentIndex != postIndex
+                                ? currentIndex
+                                : postIndex)),
+                    viewportFraction: 1.0,
+                    keepPage: true,
+                  );
                   print(posts.length);
                   return SizedBox(
                     width: size.width,
@@ -222,6 +268,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       children: List.generate(posts.length, (index) {
                         final post = posts[index];
 
+                        // postId와 일치하는 게시물의 댓글 개수 가져오기
+                        if (currentIndex == index) {
+                          fetchCommentCount(post.postId);
+                        }
                         return Container(
                           height: MediaQuery.of(context).size.height,
                           width: MediaQuery.of(context).size.width,
@@ -303,62 +353,52 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Widget CommentCount(Post post) {
-    return FutureBuilder<int>(
-      future: fetchCommentCount(post.postId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasData) {
-          final commentCount = snapshot.data!;
-          return InkWell(
-            onTap: () {
-              showModalBottomSheet(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                isScrollControlled: true,
-                context: context,
-                builder: (context) => const CommentModal(),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    color: Colors.white,
-                    size: 35,
-                    shadows: <Shadow>[
-                      Shadow(color: Colors.black54, blurRadius: 15.0)
-                    ],
-                  ),
-                  Text(
-                    commentCount.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 15.0, // shadow blur
-                          color: Colors.black87, // shadow color
-                          offset: Offset(0, 0), // how much shadow will be shown
-                        ),
-                      ],
-                    ),
+    print(post.postId);
+    print('commentCount');
+    print(commentCount.toString());
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          isScrollControlled: true,
+          context: context,
+          builder: (context) =>
+              CommentModal(postId: post.postId, userId: post.userId),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.chat_bubble_outline_rounded,
+              color: Colors.white,
+              size: 35,
+              shadows: <Shadow>[
+                Shadow(color: Colors.black54, blurRadius: 15.0)
+              ],
+            ),
+            Text(
+              commentCount.toString(), // 댓글 개수 사용
+              style: const TextStyle(
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    blurRadius: 15.0, // shadow blur
+                    color: Colors.black87, // shadow color
+                    offset: Offset(0, 0), // how much shadow will be shown
                   ),
                 ],
               ),
             ),
-          );
-        } else if (snapshot.hasError) {
-          return Text('오류: ${snapshot.error}');
-        } else {
-          return const Text('댓글 없음');
-        }
-      },
+          ],
+        ),
+      ),
     );
   }
 
