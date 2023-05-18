@@ -78,6 +78,24 @@ class _ShopPageState extends State<ShopPage> {
       'itemId': itemId,
     };
 
+    if (type) {
+      for (int i = 0; i < bgList.length; i++) {
+        if (bgList[i]['itemId'] == itemId) {
+          setState(() {
+            bgList.removeAt(i);
+          });
+        }
+      }
+    } else {
+      for (int i = 0; i < imageList.length; i++) {
+        if (imageList[i]['itemId'] == itemId) {
+          setState(() {
+            imageList.removeAt(i);
+          });
+        }
+      }
+    }
+
     final token = await SecureStorage().getAccessToken();
 
     // print('이게 토큰이야 $token');
