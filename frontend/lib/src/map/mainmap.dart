@@ -95,7 +95,7 @@ class _MainMapState extends State<MainMap> {
     }
   }
 
-  Future<void> _getCurrentLocation() async {
+  void _getCurrentLocation() async {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
 
@@ -124,19 +124,21 @@ class _MainMapState extends State<MainMap> {
     // 내 위치 기반 원 그리기
     if (_currentPosition != null) {
       final circleOverlay = NCircleOverlay(
-          id: "current",
-          center:
-              NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-          radius: 300,
-          color: const Color(0xFF9479CD).withOpacity(0.2));
-      _controller?.addOverlay(circleOverlay); // 변수 뒤에 ?를 붙여줍니다.
+        id: "current",
+        center:
+            NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+        radius: 300,
+        color: const Color(0xFF9479CD).withOpacity(0.2),
+      );
+      _controller?.addOverlay(circleOverlay);
     }
 
-    _setLocationTrackingMode(NLocationTrackingMode.follow); // 마지막 줄에 추가
+    _setLocationTrackingMode(NLocationTrackingMode.follow);
 
     setState(() {});
 
-    await _loadMarkers();
+    await _loadMarkers(); // 위치가 갱신될 때마다 마커를 다시 로드
+
     _isLoaded = true;
   }
 

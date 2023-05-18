@@ -28,8 +28,8 @@ class DataServerDio {
   static Dio instance() {
     final dio = Dio();
     dio.options.baseUrl = 'http://k8a803.p.ssafy.io:8080/';
-    dio.options.connectTimeout = Duration(milliseconds: 5000);
-    dio.options.receiveTimeout = Duration(milliseconds: 5000);
+    dio.options.connectTimeout = const Duration(milliseconds: 5000);
+    dio.options.receiveTimeout = const Duration(milliseconds: 5000);
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -73,6 +73,8 @@ class Paths {
   static const myPagePost = 'mypage/getPost'; // 유저페이지
   static const myPageItem = 'mypage/getItem'; // 유저페이지
   static const deleteUser = 'mypage/deleteUser';
+  static const deleteComment = '/api/comment/';
+  static const getComments = '/api/comment/comments/';
 }
 
 // final SecureStorage secureStorage = SecureStorage();

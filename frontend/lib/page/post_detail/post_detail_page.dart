@@ -138,11 +138,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonResult = response.data as List<dynamic>;
-        final List<Post> comments = jsonResult.map((json) {
-          return Post.fromJson(json);
-        }).toList();
+        final List<Map<String, dynamic>> comments =
+            jsonResult.cast<Map<String, dynamic>>();
+        final commentCount = comments.length;
         print('댓글 개수 가져오기 성공');
-        return comments.length;
+        return commentCount;
       } else {
         print('오류: ${response.statusCode}');
         return 0;
