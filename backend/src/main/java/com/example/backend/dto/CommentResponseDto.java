@@ -23,12 +23,15 @@ public class CommentResponseDto {
 
     private String commentText;
 
-    public CommentResponseDto(Comment comment) {
+    private Integer commentCount;
+
+    public CommentResponseDto(Comment comment, int commentCount) {
         commentId = comment.getCommentId();
         userId = comment.getUser().getId().toString();
         userName = comment.getUser().getUserNickname();
         postId = comment.getPost().getPostId();
         commentText = comment.getCommentText();
+        this.commentCount = commentCount;
 
     }
 }
