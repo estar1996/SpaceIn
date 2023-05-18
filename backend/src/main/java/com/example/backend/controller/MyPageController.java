@@ -67,7 +67,7 @@ public class MyPageController {
         for (Item item : itemList) {
             boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 boolean값을 유저의 소유여부로 판단
             if (haveItem) { // 유저가 아이템을 가지고 있을 때,
-                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemImg(), haveItem);
+                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);
                 itemDtoList.add(itemDto);
             }
         }

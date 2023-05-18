@@ -22,6 +22,7 @@ import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,9 +50,9 @@ public class PostController {
     private NaverReverseGeocodingService naverReverseGeocodingService;
 
     @Autowired
-
     private RegionRepository regionRepository;
 
+    @Autowired
     private LoginService loginService;
 
     @Autowired
@@ -97,9 +98,14 @@ public class PostController {
     }
 
     //유저별 게시물 조회
-    @GetMapping("/{userId}/posts")
+    @GetMapping("/myPosts")
     @Operation(summary = "유저별 게시물 조회", description = "<strong> 사용자 ID</strong>를 통해 사용자별 게시물을 조회한다.")
-    public List<PostResponseDto> getUserPost(@PathVariable Long userId) {
+    public List<PostResponseDto> getUserPost(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long userId = user.getId();
         return postService.getUserPost(userId);
     }
 
@@ -180,30 +186,26 @@ public class PostController {
         // 반환값을 받으면 버튼 모양을 좋아요 <-> 좋아요 취소로 변경하도록 설정
     }
 
-//    @GetMapping("/user/{userId}/post/combined-content")
-//    @Operation(summary = "유저의 게시물 내용 합치기", description = "특정 유저의 게시물들이 가장 많이 속한 지역의 게시물 내용을 합쳐서 반환한다.")
-//    public String getCombinedPostContentByUser(@PathVariable Long userId) {
-//        List<PostResponseDto> userPosts = postService.getUserPosts(userId);
-//        if (userPosts.isEmpty()) {
-//            throw new NoSuchElementException("No posts found for user");
-//        }
-//
-//        // 유저의 게시물들이 가장 많이 속한 지역 찾기
-//        Map<String, Long> regionCountMap = userPosts.stream()
-//                .collect(Collectors.groupingBy(PostResponseDto::getRegionName, Collectors.counting()));
-//
-//        String mostCommonRegion = regionCountMap.entrySet().stream()
-//                .max(Map.Entry.comparingByValue())
-//                .map(Map.Entry::getKey)
-//                .orElseThrow(() -> new NoSuchElementException("No region found"));
-//
-//        // 가장 많이 속한 지역의 게시물 내용 가져오기 및 합치기
-//        String combinedPostContent = postService.getCombinedPostContentsByRegionName(mostCommonRegion);
-//
-//        // 감정분석 로직 추가
-//        // ...
-//
-//        return combinedPostContent;
-//    }
+    @GetMapping("/randomPost")
+    public ResponseEntity<Map<String, Object>> Randompost(@RequestHeader String Authorization, @RequestParam double latitude, @RequestParam double longitude) {
+        // 유저 불러옴
+
+        String token = Authorization.substring(7);
+        System.out.println(token);
+        Claims claims = loginService.getClaimsFromToken(token);
+        System.out.println(claims);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long userId = user.getId();
+
+        Set<PostResponseDto> randomPosts = postService.randomPickPosts(userId, latitude, longitude);
+
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("postList", randomPosts);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
 
 }
