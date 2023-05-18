@@ -8,16 +8,16 @@ import lombok.Setter;
 @Setter
 public class ItemDto {
     private Long itemId;
-    private String itemName;
+    private String itemFileName;
     private Integer itemPrice;
 
     private String itemImg;
 
     private boolean haveItem;
 
-    public ItemDto(Long itemId, String itemName, Integer itemPrice, String itemImg, boolean haveItem) {
+    public ItemDto(Long itemId, String itemFileName, Integer itemPrice, String itemImg, boolean haveItem) {
         this.itemId = itemId;
-        this.itemName = itemName;
+        this.itemFileName = itemFileName;
         this.itemPrice = itemPrice;
         this.itemImg = itemImg;
         this.haveItem = haveItem;
