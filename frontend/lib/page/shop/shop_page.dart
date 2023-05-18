@@ -3,6 +3,8 @@ import 'package:page_indicator/page_indicator.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:frontend/page/shop/shop_detail.dart';
 import 'package:frontend/page/shop/shop_bottom.dart';
+import 'package:dio/dio.dart';
+import 'package:frontend/common/secure_storage.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -16,93 +18,52 @@ class _ShopPageState extends State<ShopPage> {
 
   GlobalKey<PageContainerState> key = GlobalKey();
 
-  List<String> imageList = [
-    'assets/Asteroid.png',
-    'assets/Astronaut-1.png',
-    'assets/Astronaut-2.png',
-    'assets/Astronaut-3.png',
-    'assets/Astronaut-4.png',
-    'assets/Comet.png',
-    'assets/Planet & Rocket.png',
-    'assets/Planet-1.png',
-    'assets/Planet-2.png',
-    'assets/Planet-3.png',
-    'assets/Planet-4.png',
-    'assets/Planet-5.png',
-    'assets/Planet-6.png',
-    'assets/Planet-7.png',
-    'assets/Planet-8.png',
-    'assets/Planet-9.png',
-    'assets/Planet-10.png',
-    'assets/Planet-11.png',
-    'assets/Planet-12.png',
-    'assets/Planet-13.png',
-    'assets/Planet-14.png',
-    'assets/Planet-15.png',
-    'assets/Rocket-1.png',
-    'assets/Rocket-2.png',
-    'assets/Rover.png',
-    'assets/SolarSystem.png',
-    'assets/SpaceSatellite.png',
-    'assets/SpaceShip-1.png',
-    'assets/SpaceShip-2.png',
-    'assets/Star1.png',
-    'assets/Star2_1.png',
-    'assets/Star2_2.png',
-    'assets/Star2_3.png',
-    'assets/Star2_4.png',
-    'assets/Star2_5.png',
-    'assets/Star2.png',
-    'assets/Telescope.png',
-    'assets/UFO.png',
-  ];
+  List<Map<String, dynamic>> imageList = [];
 
   List<bool> imageHaveList = [];
 
-  List<String> bgList = [
-    'assets/background/bg_bluered.png',
-    'assets/background/bg_box.png',
-    'assets/background/bg_check.png',
-    'assets/background/bg_check2.png',
-    'assets/background/bg_cute.png',
-    'assets/background/bg_flower.png',
-    'assets/background/bg_gradient.png',
-    'assets/background/bg_gradient2.png',
-    'assets/background/bg_greenaura.png',
-    'assets/background/bg_letter.png',
-    'assets/background/bg_letter2.png',
-    'assets/background/bg_line.png',
-    'assets/background/bg_mountain.png',
-    'assets/background/bg_newspaper.png',
-    'assets/background/bg_night.png',
-    'assets/background/bg_ocean.png',
-    'assets/background/bg_pearl.png',
-    'assets/background/bg_photoedit.png',
-    'assets/background/bg_photoedit2.png',
-    'assets/background/bg_sky.png',
-    'assets/background/bg_sky2.png',
-    'assets/background/bg_twinkle.png',
-    'assets/background/bg_paper.png',
-    'assets/background/bg_whiteSpace.png',
-    'assets/background/bg_blackspace.png',
-  ];
+  List<Map<String, dynamic>> bgList = [];
 
   List<bool> bgHaveList = [];
 
-  int workPoint = 1500;
+  late int workPoint = 0;
+
+  final dio = Dio();
 
   @override
   void initState() {
     super.initState();
     controller = PageController();
 
-    for (int i = 0; i < imageList.length; i++) {
-      imageHaveList.add(false);
-    }
+    checkItem();
+  }
 
-    for (int i = 0; i < bgList.length; i++) {
-      bgHaveList.add(false);
-    }
+  void checkItem() async {
+    Response response;
+    final token = await SecureStorage().getAccessToken();
+    // print('이게 토큰이야 $token');
+
+    response = await dio.get(
+      'http://k8a803.p.ssafy.io:8080/shop/checkitem',
+      options: Options(headers: {'Authorization': token}),
+    );
+
+    setState(() {
+      workPoint = response.data['userMoney'];
+
+      for (Map<String, dynamic> dt in response.data['itemList']) {
+        if (!dt['haveItem']) {
+          if (dt['itemFileName'][0] == 'b' && dt['itemFileName'][1] == 'g') {
+            // print('이거 bg $dt');
+            bgList.add(dt);
+          } else {
+            // print('이건 image $dt');
+            imageList.add(dt);
+          }
+        }
+      }
+    });
+    // print('이게 지금 데이터야 ${response.data['itemList']}');
   }
 
   @override
@@ -111,7 +72,22 @@ class _ShopPageState extends State<ShopPage> {
     super.dispose();
   }
 
-  void buyItem(int price) {
+  //  int itemId
+  void buyItem(int price, int itemId, bool type) async {
+    Map<String, int> requestBody = {
+      'itemId': itemId,
+    };
+
+    final token = await SecureStorage().getAccessToken();
+
+    // print('이게 토큰이야 $token');
+    Response response =
+        await dio.post('http://k8a803.p.ssafy.io:8080/shop/buyitem',
+            data: requestBody,
+            options: Options(
+              headers: {'Authorization': token},
+            ));
+
     setState(() {
       workPoint -= price;
     });
@@ -222,7 +198,7 @@ class _ShopPageState extends State<ShopPage> {
                   showIndicator: false,
                 ),
                 items: bgList.map((i) {
-                  final index = bgList.indexOf(i);
+                  // final index = bgList.indexOf(i);
                   return Builder(
                     builder: (BuildContext context) {
                       return GestureDetector(
@@ -239,9 +215,12 @@ class _ShopPageState extends State<ShopPage> {
                             context: context,
                             builder: (BuildContext context) {
                               return shopBottom(
-                                address: i,
+                                // .itemName
+                                address: i['itemFileName'],
                                 buyItem: buyItem,
-                                price: 10,
+                                // .itemPrice
+                                price: i['itemPrice'],
+                                itemId: i['itemId'],
                               );
                             },
                           );
@@ -251,9 +230,12 @@ class _ShopPageState extends State<ShopPage> {
                           margin: const EdgeInsets.symmetric(horizontal: 6.0),
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage(i),
+                              // i.itemName
+                              image: AssetImage(
+                                  'assets/background/${i['itemFileName']}'),
                               fit: BoxFit.cover,
-                              colorFilter: !bgHaveList[index]
+                              // i.haveItem
+                              colorFilter: !i['haveItem']
                                   ? ColorFilter.mode(
                                       Colors.black.withOpacity(0.5),
                                       BlendMode.darken)
@@ -262,11 +244,12 @@ class _ShopPageState extends State<ShopPage> {
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(10)),
                           ),
-                          child: !bgHaveList[index]
-                              ? const Center(
+                          // i.haveItem
+                          child: !i['haveItem']
+                              ? Center(
                                   child: Text(
-                                    '🌟 10',
-                                    style: TextStyle(
+                                    '🌟 ${i['itemPrice']}',
+                                    style: const TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -338,9 +321,13 @@ class _ShopPageState extends State<ShopPage> {
                             context: context,
                             builder: (BuildContext context) {
                               return shopBottom(
-                                address: i,
+                                // i.itemName
+                                address: i['itemFileName'],
                                 buyItem: buyItem,
-                                price: 10,
+                                // i.itemPrice
+                                price: i['itemPrice'],
+                                // itemId: i.itemId
+                                itemId: i['itemId'],
                               );
                             },
                           );
@@ -350,14 +337,15 @@ class _ShopPageState extends State<ShopPage> {
                           margin: const EdgeInsets.symmetric(
                               horizontal: 6.0, vertical: 2.0),
                           decoration: BoxDecoration(
-                            border: imageHaveList[index]
+                            // i.haveItem
+                            border: i['haveItem']
                                 ? Border.all(
                                     color: Colors.black12,
                                     width: 1,
                                   )
                                 : null,
                             image: DecorationImage(
-                              image: AssetImage(i),
+                              image: AssetImage('assets/${i['itemFileName']}'),
                               fit: BoxFit.fitWidth,
                             ),
                             borderRadius:
@@ -365,7 +353,8 @@ class _ShopPageState extends State<ShopPage> {
                           ),
                           child: Stack(
                             children: [
-                              if (!imageHaveList[index])
+                              // i.haveItem
+                              if (!i['haveItem'])
                                 Opacity(
                                   opacity: 0.5,
                                   child: Container(
@@ -375,11 +364,12 @@ class _ShopPageState extends State<ShopPage> {
                                             Radius.circular(10))),
                                   ),
                                 ),
-                              if (!imageHaveList[index])
-                                const Center(
+                              // i.haveItem
+                              if (!i['haveItem'])
+                                Center(
                                   child: Text(
-                                    '🌟 10',
-                                    style: TextStyle(
+                                    '🌟 ${i['itemPrice']}',
+                                    style: const TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

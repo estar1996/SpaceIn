@@ -5,12 +5,15 @@ class shopBottom extends StatefulWidget {
   final String address;
   final buyItem;
   final int price;
+  final int itemId;
 
-  const shopBottom(
-      {super.key,
-      required this.address,
-      required this.buyItem,
-      required this.price});
+  const shopBottom({
+    super.key,
+    required this.address,
+    required this.buyItem,
+    required this.price,
+    required this.itemId,
+  });
 
   @override
   State<shopBottom> createState() => _shopBottomState();
@@ -18,6 +21,7 @@ class shopBottom extends StatefulWidget {
 
 class _shopBottomState extends State<shopBottom> {
   late FToast fToast;
+  late bool type;
 
   showBuyToast() {
     Widget toast = Container(
@@ -51,6 +55,12 @@ class _shopBottomState extends State<shopBottom> {
     super.initState();
     fToast = FToast();
     fToast.init(context);
+
+    if (widget.address.startsWith('bg')) {
+      type = true;
+    } else {
+      type = false;
+    }
   }
 
   @override
@@ -68,7 +78,9 @@ class _shopBottomState extends State<shopBottom> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8.0),
                   image: DecorationImage(
-                    image: AssetImage(widget.address),
+                    image: type
+                        ? AssetImage('assets/background/${widget.address}')
+                        : AssetImage('assets/${widget.address}'),
                   ),
                 ),
               ),
@@ -81,7 +93,7 @@ class _shopBottomState extends State<shopBottom> {
                   ElevatedButton(
                     onPressed: () {
                       showBuyToast();
-                      widget.buyItem(widget.price);
+                      widget.buyItem(widget.price, widget.itemId, type);
                       Navigator.pop(context);
                     },
                     style: ButtonStyle(

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/page/shop/shop_bottom.dart';
 
+import 'package:dio/dio.dart';
+
+import 'package:frontend/common/secure_storage.dart';
+
 class shopDetail extends StatefulWidget {
   final bool type;
   final int point;
-  final List<String> imageList;
+  final List<dynamic> imageList;
 
   const shopDetail({
     super.key,
@@ -20,19 +24,24 @@ class shopDetail extends StatefulWidget {
 class _shopDetailState extends State<shopDetail> {
   late List<Widget> ImageBtn = [];
   int thisPoint = 0;
+  final dio = Dio();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    for (String ads in widget.imageList) {
+    // print('이건 shopdetail의 imagelist ${widget.imageList}');
+    for (Map<String, dynamic> dt in widget.imageList) {
       ImageBtn.add(
         EachImage(
-          address: ads,
+          // .itemName
+          address: dt['itemFileName'],
           type: widget.type,
-          having: false,
+          // .havItem
+          having: dt['haveItem'],
+          price: dt['itemPrice'],
           buyItem: buyItem,
+          itemId: dt['itemId'],
         ),
       );
     }
@@ -40,7 +49,20 @@ class _shopDetailState extends State<shopDetail> {
     thisPoint = widget.point;
   }
 
-  void buyItem(int price) {
+  // int itemId
+  void buyItem(int price, int itemId, bool type) async {
+    Map<String, int> requestBody = {
+      'itemId': itemId,
+    };
+
+    final token = await SecureStorage().getAccessToken();
+    Response response =
+        await dio.post('http://k8a803.p.ssafy.io:8080/shop/buyitem',
+            data: requestBody,
+            options: Options(
+              headers: {'Authorization': token},
+            ));
+
     setState(() {
       thisPoint -= price;
     });
@@ -87,6 +109,8 @@ class EachImage extends StatelessWidget {
   final String address;
   final bool type;
   final bool having;
+  final int price;
+  final int itemId;
   final buyItem;
 
   const EachImage({
@@ -95,6 +119,8 @@ class EachImage extends StatelessWidget {
     required this.type,
     required this.having,
     required this.buyItem,
+    required this.price,
+    required this.itemId,
   });
 
   @override
@@ -114,7 +140,8 @@ class EachImage extends StatelessWidget {
             return shopBottom(
               address: address,
               buyItem: buyItem,
-              price: 10,
+              price: price,
+              itemId: itemId,
             );
           },
         );
@@ -125,31 +152,33 @@ class EachImage extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
           image: DecorationImage(
             fit: type ? BoxFit.cover : BoxFit.fitWidth,
-            image: AssetImage(address),
+            image: type
+                ? AssetImage('assets/background/$address')
+                : AssetImage('assets/$address'),
           ),
         ),
         child: Stack(
           children: [
-            // if (!imageHaveList[index])
-            Opacity(
-              opacity: 0.5,
-              child: Container(
-                decoration: const BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-              ),
-            ),
-            // if (!imageHaveList[index])
-            const Center(
-              child: Text(
-                '🌟 10',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+            if (!having)
+              Opacity(
+                opacity: 0.5,
+                child: Container(
+                  decoration: const BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
                 ),
               ),
-            ),
+            if (!having)
+              const Center(
+                child: Text(
+                  '🌟 10',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
