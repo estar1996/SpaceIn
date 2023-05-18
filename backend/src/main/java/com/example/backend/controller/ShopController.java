@@ -61,8 +61,7 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
         Set<Item> items = userService.findItemsByUserId(id); // 유저가 가진 아이템 리스트
 
         List<ItemDto> itemDtoList = new ArrayList<>();
-        for (Item item : itemList) {
-            System.out.println("아이템 출력"+item.getItemId());
+        for (Item item : itemList) {;
             boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 부분을 유저의 소유여부로 판단
 
             ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);

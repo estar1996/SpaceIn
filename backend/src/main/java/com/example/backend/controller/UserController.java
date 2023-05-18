@@ -57,7 +57,7 @@ public class UserController {
         User user = new User();
         user.setEmail(userDto.getEmail());
         user.setUserNickname(userDto.getUserNickname());
-        user.setUserMoney(0);
+        user.setUserMoney(100);
         System.out.println(user);
         userRepository.save(user);
 

@@ -151,4 +151,61 @@ public class MyPageController {
         }
 
     }
+
+    @GetMapping("/getBackground")
+    public ResponseEntity<Map<String, Object>> getBackGround(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        HashMap<String, Object> response = new HashMap<>();
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long id = user.getId();
+
+        List<Item> itemList = itemService.getItemList();
+        List<ItemDto> itemDtoList = new ArrayList<>();
+        Set<Item> items = userService.findItemsByUserId(id);
+        System.out.println(user.getId());
+        System.out.println(items);
+        for (Item item : items) {
+            boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 부분을 유저의 소유여부로 판단
+            System.out.println(item.getItemId());
+            System.out.println(item.getItemType());
+            if (true) { // 이거 체크
+                System.out.println("tt");
+                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);
+                itemDtoList.add(itemDto);
+            }
+            System.out.println(itemDtoList);
+        }
+        response.put("backgroundItem", itemDtoList);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
+    @GetMapping("/getSticker")
+    public ResponseEntity<Map<String, Object>> getSticker(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        HashMap<String, Object> response = new HashMap<>();
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long id = user.getId();
+
+        List<Item> itemList = itemService.getItemList();
+        List<ItemDto> itemDtoList = new ArrayList<>();
+        Set<Item> items = userService.findItemsByUserId(id);
+
+        for (Item item : itemList) {;
+            boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 부분을 유저의 소유여부로 판단
+            if (haveItem && item.getItemType()=="2" ) {
+                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);
+                itemDtoList.add(itemDto);
+            }
+        }
+        response.put("stickerItem", itemDtoList);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
 }
