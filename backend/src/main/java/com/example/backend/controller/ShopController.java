@@ -37,7 +37,7 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
 //            imagePrice: int}
 //    ],
 //    }
-    @PostMapping("/checkitem")
+    @GetMapping("/checkitem")
     public ResponseEntity<HashMap<String,Object>> checkItem(@RequestHeader String Authorization) {
         //header의 token을 받아 유저정보 파악
         String token = Authorization.substring(7);

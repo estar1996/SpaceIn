@@ -108,9 +108,6 @@ public class PostController {
     }
 
 
-
-
-
     @GetMapping("/all")
     @Operation(summary = "모든 게시물 조회", description = "모든 게시물 정보를 가져온다.")
     public ResponseEntity<List<PostResponseDto>> getAllPosts() {
