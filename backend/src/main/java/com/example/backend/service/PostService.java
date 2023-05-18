@@ -72,6 +72,7 @@ public class PostService {
         return new PostResponseDto(savedPost);
 
     }
+
     public List<PostResponseDto> getUserPosts(Long userId) {
         List<Post> posts = postRepository.findByUserId(userId);
         return posts.stream().map(PostResponseDto::new).collect(Collectors.toList());
@@ -108,7 +109,6 @@ public class PostService {
     public void deletePost(Long postId) {
         postRepository.deleteById(postId);
     }
-
 
 
     private boolean isWithinRadius(Double postLatitude, Double postLongitude, double latitude, double longitude, double radiusInKm) {
@@ -156,13 +156,13 @@ public class PostService {
         return postRepository.findByRegion(region).stream()
                 .map(Post::getPostContent)
                 .collect(Collectors.toList());
-
-    public boolean isLikeExists(Long userId, Long postId) {
+    }
+    public boolean isLikeExists (Long userId, Long postId){
         return postLikeRepository.existsByUser_IdAndPost_PostId(userId, postId);
     }
 
     @Transactional
-    public void removePostLikeByUserIdAndPostId(Long userId, Long postId) {
+    public void removePostLikeByUserIdAndPostId (Long userId, Long postId){
         PostLike postLike = postLikeRepository.findByUser_IdAndPost_PostId(userId, postId);
         if (postLike != null) {
             postLikeRepository.delete(postLike);
@@ -171,7 +171,7 @@ public class PostService {
     }
 
     @Transactional
-    public void addPostLikeByUserIdAndPostId(Long userId, Long postId) {
+    public void addPostLikeByUserIdAndPostId (Long userId, Long postId){
         User user = userRepository.findById(userId).orElse(null);
         Post post = postRepository.findById(postId).orElse(null);
 
@@ -183,7 +183,7 @@ public class PostService {
         }
     }
     @Transactional
-    public void changePostLikes(Long postId, int value) {
+    public void changePostLikes (Long postId,int value){
         Post post = postRepository.findById(postId).orElse(null);
         if (post != null) {
             post.setPostLikes(post.getPostLikes() + value);  // 새로운 postlikes 값을 설정
@@ -191,3 +191,5 @@ public class PostService {
         }
     }
 }
+
+

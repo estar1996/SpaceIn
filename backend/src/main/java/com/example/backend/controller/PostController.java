@@ -1,7 +1,6 @@
 package com.example.backend.controller;
 
 import com.example.backend.domain.Post;
-<<<<<<< backend/src/main/java/com/example/backend/controller/PostController.java
 import com.example.backend.domain.Region;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
