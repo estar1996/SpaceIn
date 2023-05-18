@@ -56,18 +56,19 @@ public class LoginService {
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
-        String nickname = userResourceNode.get("name").asText();
+//        String nickname = userResourceNode.get("name").asText();
         String userImg = userResourceNode.get("picture").asText();
         System.out.println("id = " + id);
         System.out.println("email = " + email);
-        System.out.println("nickname = " + nickname);
+//        System.out.println("nickname = " + nickname);
 
         Map<String, String> userData = new HashMap<>();
         userData.put("email", email);
         User user = userRepository.findByEmail(email);
-        user.setUserImg(userImg);
-        userRepository.save(user); // 이미지 삽입
-
+        if (user != null) {
+            user.setUserImg(userImg);
+            userRepository.save(user); // 이미지 삽입
+        }
         return userData; // email을 리턴해서 이걸 기준으로 로그인 처리
     }
 
@@ -97,7 +98,7 @@ public class LoginService {
     private JsonNode getUserResource(String accessToken, String registrationId) {
 //        String resourceUri = env.getProperty("oauth2." + registrationId + ".resource-uri");
         String resourceUri = "https://www.googleapis.com/oauth2/v2/userinfo";
-
+        System.out.println(resourceUri);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity entity = new HttpEntity(headers);

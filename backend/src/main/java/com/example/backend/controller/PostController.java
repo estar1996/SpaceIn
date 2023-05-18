@@ -72,18 +72,25 @@ public class PostController {
     @Operation(summary = "게시물 저장"
             , description = "게시물을 저장한다.")
     public PostResponseDto savePost(@RequestPart("multipartFile") MultipartFile multipartFile,
-                                    @RequestParam("userId") Long userId,
+                                    @RequestHeader String Authorization,
                                     @RequestParam("postContent") String postContent,
                                     @RequestParam("postLatitude") double postLatitude,
                                     @RequestParam("postLongitude") double postLongitude) throws IOException {
 
         String regionName = naverReverseGeocodingService.getReverseGeocode(postLatitude, postLongitude);
         Region region = regionRepository.findByRegionName(regionName);
+        String token = Authorization.substring(7);
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long userId = user.getId();
+
         if (region == null) {
             throw new RuntimeException("Region not found for the given region name: " + regionName);
         }
         Long regionId = region.getRegionId();
 
+        userService.changeUserMoney(userId,100);
         PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude, regionId);
         String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);

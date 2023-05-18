@@ -30,10 +30,10 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/hello/start").authenticated() // /Hello/start로 전송되는 요청 중, POST 요청은 인증된 사용자만 가능하도록 한다.
+                .antMatchers("/api/posts/1/posts").authenticated()
                 .antMatchers("/login/oauth2/code/google").permitAll()
                 .antMatchers("/user/updatetoken").permitAll()
 //                .antMatchers("/members/test").hasRole("USER")
-                .anyRequest().permitAll()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
