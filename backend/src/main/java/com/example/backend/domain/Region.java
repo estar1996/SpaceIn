@@ -20,8 +20,9 @@ public class Region {
 
     private String regionName;
 
-    @OneToMany
+    @OneToMany(mappedBy = "region")
     private List<Post> posts;
+
 
 
 }

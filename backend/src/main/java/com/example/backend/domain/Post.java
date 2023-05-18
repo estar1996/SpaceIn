@@ -1,5 +1,7 @@
 package com.example.backend.domain;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,8 +41,9 @@ public class Post {
     private List<PostLike> likeUsers = new ArrayList<>();
 
     @Builder
-    public Post(User user, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
+    public Post(User user,Region region, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
         this.user = user;
+        this.region = region;
         this.fileUrl = fileUrl;
         this.postLatitude = postLatitude;
         this.postLongitude = postLongitude;

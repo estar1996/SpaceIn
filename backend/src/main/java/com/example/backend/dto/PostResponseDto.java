@@ -19,8 +19,8 @@ public class PostResponseDto {
     private Long userId;
 
     private String userNickname;
-
     private Long regionId;
+    private String regionName;
 
     private String fileUrl;
 
@@ -39,14 +39,16 @@ public class PostResponseDto {
             userId = post.getUser().getId();
             userNickname = post.getUser().getUserNickname();
         }
-
-//        regionId = post.getRegion().getRegionId();
+        if (post.getRegion() != null) {
+            regionId = post.getRegion().getRegionId();
+            regionName = post.getRegion().getRegionName();
+        }
         fileUrl = post.getFileUrl();
         postLatitude = post.getPostLatitude();
         postLongitude = post.getPostLongitude();
         postDate = post.getPostDate();
         postContent = post.getPostContent();
-//        postLikes = post.getPostLikes();
+        postLikes = post.getPostLikes();
 
     }
 }

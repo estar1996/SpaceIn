@@ -1,6 +1,7 @@
 package com.example.backend.repository;
 
 import com.example.backend.domain.Post;
+import com.example.backend.domain.Region;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +18,8 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     @Query("select r from Post r where r.postLatitude = :latitude and r.postLongitude = :longitude")
     List<Post> findByPostLatitudeAndPostLongitude(@Param("latitude") double latitude, @Param("longitude") double longitude);
 
+
+    @Query(value = "SELECT * FROM post WHERE region_id = :regionId", nativeQuery = true)
+    List<Post> findByRegion(Region region);
 
 }
