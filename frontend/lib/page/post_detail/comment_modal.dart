@@ -13,8 +13,9 @@ class CommentModal extends StatefulWidget {
 }
 
 class _CommentModalState extends State<CommentModal> {
-  List<dynamic>? comments;
-  List<dynamic>? userName;
+  List<dynamic>? comments; // comments 변수를 배열로 선언
+  List<dynamic>? userName; // userName 변수를 배열로 선언
+  String? currentUserName; // 현재 사용자의 이름을 저장할 변수
 
   Dio dio = Dio();
   final TextEditingController _commentController = TextEditingController();
@@ -24,37 +25,39 @@ class _CommentModalState extends State<CommentModal> {
   void initState() {
     super.initState();
     getComments();
-    getCurrentUserName(); // 현재 사용자의 이름을 가져오기 위해 호출
+    // getCurrentUserName();
   }
 
-  Future getCurrentUserName() async {
-    // 현재 사용자의 이름을 가져오는 비동기 함수
-    try {
-      final response = await dio
-          .get('http://k8a803.p.ssafy.io:8080/api/user/${widget.userId}');
-      if (response.statusCode == 200) {
-        final data = response.data;
-        setState(() {
-          currentUserName = data['userName']; // 현재 사용자의 이름 업데이트
-        });
-      } else {
-        // Handle the error scenario
-      }
-    } catch (e) {
-      // Handle any exceptions
-    }
-  }
+  // Future getCurrentUserName() async {
+  //   // 현재 사용자의 이름을 가져오는 비동기 함수
+  //   try {
+  //     final response = await dio
+  //         .get('http://k8a803.p.ssafy.io:8080/api/user/${widget.userId}');
+  //     if (response.statusCode == 200) {
+  //       final data = response.data;
+  //       setState(() {
+  //         currentUserName = data['userName']; // 현재 사용자의 이름 업데이트
+  //       });
+  //     } else {
+  //       // Handle the error scenario
+  //     }
+  //   } catch (e) {
+  //     // Handle any exceptions
+  //   }
+  // }
 
+  // 댓글 조회 통신
   Future getComments() async {
     try {
       final response = await dio.get(
           'http://k8a803.p.ssafy.io:8080/api/comment/comments/${widget.postId}');
       if (response.statusCode == 200) {
         setState(() {
-          comments = response.data;
-          userName = [];
+          comments = response.data; // comments에 response.data를 할당
+          userName = []; // userName 배열을 초기화
           for (var comment in comments!) {
-            userName!.add(comment['userName']);
+            userName!
+                .add(comment['userName']); // 각 댓글의 userName을 userName 배열에 추가
           }
         });
       } else {
@@ -65,25 +68,23 @@ class _CommentModalState extends State<CommentModal> {
     }
   }
 
+  // 댓글 작성 통신
   Future<void> postComment(BuildContext context, String text) async {
     print(text);
     try {
       await dio.post('http://k8a803.p.ssafy.io:8080/api/comment', data: {
         'postId': widget.postId,
-        'userId': widget.userId,
+        'userId': widget.userId, // Replace with the actual user ID
         'commentText': text,
       });
-      FocusScope.of(context).unfocus();
+      FocusScope.of(context).unfocus(); // Hide the keyboard
       _commentController.clear();
       setState(() {
         comments = [
           ...comments!,
-          {
-            'userName': currentUserName,
-            'commentText': text
-          } // 현재 사용자의 이름으로 댓글 작성
+          {'userName': currentUserName, 'commentText': text}
         ];
-        userName!.add(currentUserName);
+        userName!.add(currentUserName); // 작성한 댓글의 사용자 이름을 userName 배열에 추가
       });
     } catch (e) {
       // Handle any exceptions

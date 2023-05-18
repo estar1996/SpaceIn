@@ -138,11 +138,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
-  bool isLoading = false; // 로딩 상태 변수 추가
-
-  Future<void> fetchCommentCount(int postId) async {
-    if (isLoading) return; // 이미 로딩 중이라면 중복 호출 방지
-
+  // bool isLoading = false; // 로딩 상태 변수 추가
+  Future<int> fetchCommentCount(int postId) async {
     try {
       isLoading = true; // 로딩 시작
       final response = await Dio().get(
@@ -174,6 +171,41 @@ class _PostDetailPageState extends State<PostDetailPage> {
       isLoading = false; // 로딩 종료
     }
   }
+
+  // Future<void> fetchCommentCount(int postId) async {
+  //   if (isLoading) return; // 이미 로딩 중이라면 중복 호출 방지
+
+  //   try {
+  //     isLoading = true; // 로딩 시작
+  //     final response = await Dio().get(
+  //       'http://k8a803.p.ssafy.io:8080/api/comment/comments/',
+  //       queryParameters: {'postId': postId},
+  //     );
+  //     if (mounted) {
+  //       if (response.statusCode == 200) {
+  //         final List<dynamic> jsonResult = response.data as List<dynamic>;
+  //         print('댓글 개수 가져오기 성공');
+  //         setState(() {
+  //           commentCount = jsonResult.length; // 댓글 개수 업데이트
+  //         });
+  //       } else {
+  //         print('오류: ${response.statusCode}');
+  //         setState(() {
+  //           commentCount = 0; // 오류 발생 시 댓글 개수를 0으로 설정
+  //         });
+  //       }
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       print('오류: $e');
+  //       setState(() {
+  //         commentCount = 0; // 오류 발생 시 댓글 개수를 0으로 설정
+  //       });
+  //     }
+  //   } finally {
+  //     isLoading = false; // 로딩 종료
+  //   }
+  // }
 
   Future<int> fetchPostIndex(List<Post> posts) async {
     final postIndex = posts.indexWhere((post) => post.postId == widget.postId);

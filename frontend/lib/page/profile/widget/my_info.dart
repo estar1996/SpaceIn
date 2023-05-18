@@ -53,19 +53,21 @@ class MyInfo extends StatelessWidget {
                     Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                       Row(
                         children: [
-                          const Image(
-                            width: 20,
-                            height: 20,
-                            image: AssetImage(
-                              'assets/Star1.png',
+                          // const Image(
+                          //   width: 20,
+                          //   height: 20,
+                          //   image: AssetImage(
+                          //     'assets/Star1.png',
+                          //   ),
+                          // ),
+                          SizedBox(width: 5),
+                          Text(
+                            '🌟 $star',
+                            style: TextStyle(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: 5),
-                          Text('$star',
-                              style: TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.bold,
-                              )),
                         ],
                       ),
                     ]),

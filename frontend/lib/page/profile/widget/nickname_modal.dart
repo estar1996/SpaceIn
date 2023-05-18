@@ -10,6 +10,6 @@ class ChangeNickname extends StatefulWidget {
 class _ChangeNicknameState extends State<ChangeNickname> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Container();
   }
 }
