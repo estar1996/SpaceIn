@@ -1,8 +1,10 @@
 package com.example.backend.controller;
 
 import com.example.backend.domain.Post;
+import com.example.backend.domain.Region;
 import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
+import com.example.backend.repository.RegionRepository;
 import com.example.backend.service.NaverReverseGeocodingService;
 import com.example.backend.service.PostService;
 import com.example.backend.service.S3Service;
@@ -33,6 +35,8 @@ public class PostController {
     @Autowired
     private NaverReverseGeocodingService naverReverseGeocodingService;
 
+    @Autowired
+    private RegionRepository regionRepository;
 
 //    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 //    public PostResponseDto savePost(@RequestParam MultipartFile multipartFile, @RequestParam PostDto postDto) throws IOException {
@@ -52,7 +56,13 @@ public class PostController {
                                       @RequestParam("postLongitude") double postLongitude) throws IOException {
 
         String regionName = naverReverseGeocodingService.getReverseGeocode(postLatitude, postLongitude);
-        PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude,regionName);
+        Region region = regionRepository.findByRegionName(regionName);
+        if (region == null) {
+            throw new RuntimeException("Region not found for the given region name: " + regionName);
+        }
+        Long regionId = region.getRegionId();
+
+        PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude,regionId);
         String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);
         return newPost;

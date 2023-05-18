@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Region {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "region_id")
     private Long regionId;
 
@@ -20,8 +20,9 @@ public class Region {
 
     private String regionName;
 
-    @OneToMany
+    @OneToMany(mappedBy = "region")
     private List<Post> posts;
+
 
 
 }
