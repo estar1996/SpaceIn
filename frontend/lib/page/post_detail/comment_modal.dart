@@ -19,6 +19,7 @@ class _CommentModalState extends State<CommentModal> {
 
   Dio dio = Dio();
   final TextEditingController _commentController = TextEditingController();
+  String? currentUserName; // 현재 사용자의 이름을 저장할 변수
 
   @override
   void initState() {
@@ -120,7 +121,7 @@ class _CommentModalState extends State<CommentModal> {
                     itemCount: comments?.length ?? 0,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        title: Text(comments?[index]['userName'] ?? ''),
+                        title: Text(userName?[index] ?? ''),
                         subtitle: Text(comments?[index]['commentText'] ?? ''),
                       );
                     },

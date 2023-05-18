@@ -141,25 +141,34 @@ class _PostDetailPageState extends State<PostDetailPage> {
   // bool isLoading = false; // 로딩 상태 변수 추가
   Future<int> fetchCommentCount(int postId) async {
     try {
+      isLoading = true; // 로딩 시작
       final response = await Dio().get(
         'http://k8a803.p.ssafy.io:8080/api/comment/comments/',
         queryParameters: {'postId': postId},
       );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonResult = response.data as List<dynamic>;
-        final List<Post> comments = jsonResult.map((json) {
-          return Post.fromJson(json);
-        }).toList();
-        print('댓글 개수 가져오기 성공');
-        return comments.length;
-      } else {
-        print('오류: ${response.statusCode}');
-        return 0;
+      if (mounted) {
+        if (response.statusCode == 200) {
+          final List<dynamic> jsonResult = response.data as List<dynamic>;
+          print('댓글 개수 가져오기 성공');
+          setState(() {
+            commentCount = jsonResult.length; // 댓글 개수 업데이트
+          });
+        } else {
+          print('오류: ${response.statusCode}');
+          setState(() {
+            commentCount = 0; // 오류 발생 시 댓글 개수를 0으로 설정
+          });
+        }
       }
     } catch (e) {
-      print('오류: $e');
-      return 0;
+      if (mounted) {
+        print('오류: $e');
+        setState(() {
+          commentCount = 0; // 오류 발생 시 댓글 개수를 0으로 설정
+        });
+      }
+    } finally {
+      isLoading = false; // 로딩 종료
     }
   }
 
