@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:frontend/common/background.dart';
 import 'package:frontend/page/profile/data/profile_data.dart';
 import 'package:frontend/page/profile/widget/my_info.dart';
 import 'package:frontend/page/profile/widget/tab_menu.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
+    as geolocatorEnums;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -12,6 +16,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // NLatLng? newPosition;
   // List<dynamic> _userInfo = [];
   // SecureStorage secureStorage = SecureStorage();
   // String? accessToken;
@@ -30,39 +35,33 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         userData = userInfo.data;
       });
+      print('유저정보 $userInfo');
     } catch (error) {
       print(error);
     }
-    // userInfoList = await ProfileApi().getProfile();
-    // final userInfo = await userInfoList;
   }
-  // Future<void> _getProfile() async {
-  //   userInfoList = ProfileApi().getProfile(accessToken);
-  //   print(userInfoList);
-  // }
 
   @override
   Widget build(BuildContext context) {
-    // print("받아보까??$userData");
+    // print(newPosition);
+    print("받아보까??$userData");
     return Background(
-      child: SafeArea(
-        child: Column(
-          children: [
-            userData != null
-                ? MyInfo(
-                    name: userData?["userNickname"],
-                    star: userData?["userMoney"],
-                    profileImage: 'assets/Planet-8.png',
-                  )
-                : MyInfo(
-                    name: '누워있는우주인',
-                    star: 220,
-                    profileImage: 'assets/Planet-8.png',
+      child: userData == null
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          : SafeArea(
+              child: Column(
+                children: [
+                  MyInfo(
+                    name: userData?["userNickname"] ?? '우주인',
+                    star: userData?["userMoney"] ?? 0,
+                    profileImage: userData?["userImage"],
                   ),
-            Expanded(child: TabMenu()),
-          ],
-        ),
-      ),
+                  Expanded(
+                    child: TabMenu(),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

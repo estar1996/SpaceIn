@@ -1,16 +1,18 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:frontend/common/colors.dart';
 import 'package:frontend/page/post_detail/post_detail_page.dart';
 import 'package:frontend/page/profile/widget/tab_menu_item.dart';
-import 'package:frontend/page/profile/widget/tab_menu_mission.dart';
+// import 'package:frontend/page/profile/widget/tab_menu_mission.dart';
 import 'package:frontend/page/profile/widget/tab_menu_post.dart';
 
 class TabMenu extends StatefulWidget {
+  final NLatLng? newPosition;
   // final List<dynamic> myPost;
   // final List<dynamic> myItem;
-  const TabMenu({Key? key}) : super(key: key);
+  const TabMenu({Key? key, this.newPosition}) : super(key: key);
 
   @override
   _TabMenuState createState() => _TabMenuState();
@@ -18,25 +20,11 @@ class TabMenu extends StatefulWidget {
 
 class _TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
   late TabController _tabController;
-  List<Map<dynamic, dynamic>> missionList = [
-    {
-      'id': '1',
-      'missionText': '미션2',
-      'complete': true,
-      'star': 200,
-    },
-    {
-      'id': '2',
-      'missionText': '미션2',
-      'complete': false,
-      'star': 100,
-    },
-  ];
 
   @override
   void initState() {
     _tabController = TabController(
-      length: 3,
+      length: 2,
       vsync: this, //vsync에 this 형태로 전달해야 애니메이션이 정상 처리됨
     );
     super.initState();
@@ -44,6 +32,7 @@ class _TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.newPosition);
     return Column(
       children: [
         Container(
@@ -57,13 +46,6 @@ class _TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
                 alignment: Alignment.center,
                 child: Icon(
                   Icons.grid_on,
-                ),
-              ),
-              Container(
-                height: 50,
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.assignment,
                 ),
               ),
               Container(
@@ -87,8 +69,8 @@ class _TabMenuState extends State<TabMenu> with TickerProviderStateMixin {
           child: TabBarView(
             controller: _tabController,
             children: [
-              TabMenuPost(),
-              TabMenuMission(),
+              TabMenuPost(newPosition: widget.newPosition),
+              // TabMenuMission(),
               TabMenuItem(),
             ],
           ),

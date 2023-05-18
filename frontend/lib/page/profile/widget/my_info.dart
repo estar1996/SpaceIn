@@ -15,6 +15,7 @@ class MyInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('$name, $star, $profileImage');
     return SafeArea(
       child: Row(
         children: [
@@ -25,12 +26,15 @@ class MyInfo extends StatelessWidget {
               bottom: 20,
             ),
             child: Row(children: [
-              Image(
+              Container(
                 width: 80,
                 height: 80,
-                fit: BoxFit.cover,
-                image: AssetImage(
-                  profileImage,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(90),
+                  image: DecorationImage(
+                    image: NetworkImage(profileImage),
+                  ),
                 ),
               ),
               Container(

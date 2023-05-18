@@ -18,7 +18,8 @@ class TabMenuItem extends StatefulWidget {
 
 class _TabMenuItemState extends State<TabMenuItem> {
   // late PageController controller;
-  List<dynamic>? userData;
+  List<dynamic>? userBackground;
+  List<dynamic>? userSticker;
   @override
   void initState() {
     super.initState();
@@ -27,9 +28,11 @@ class _TabMenuItemState extends State<TabMenuItem> {
 
   Future _getUserItem() async {
     try {
-      final userInfo = await ProfileApi().getUserItem();
+      final getBackground = await ProfileApi().getUserItem();
+      final getSticker = await ProfileApi().getUserSticker();
       setState(() {
-        userData = userInfo.data["itemList"];
+        userBackground = getBackground;
+        userSticker = getSticker;
       });
     } catch (error) {
       print(error);
@@ -48,13 +51,13 @@ class _TabMenuItemState extends State<TabMenuItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.grey.withOpacity(0.2),
       body: Container(
         padding: const EdgeInsets.all(30),
         child: Column(
           children: [
             // 배경 텍스트
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
@@ -64,96 +67,123 @@ class _TabMenuItemState extends State<TabMenuItem> {
                       fontWeight: FontWeight.bold,
                       color: Colors.white),
                 ),
-                //아이콘 누르면 배경이나 스티커 리스트로 모달띄우기
-                // GestureDetector(
-                //   onTap: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(
-                //         builder: (context) => shopDetail(
-                //           point: workPoint,
-                //           type: true,
-                //           imageList: bgList,
-                //         ),
-                //       ),
-                //     );
-                //   },
-                //   child: const Icon(
-                //     Icons.arrow_forward_ios_rounded,
-                //     color: Colors.white,
-                //   ),
-                // ),
               ],
             ),
             SizedBox(height: 20),
+
             // 배경 이미지 리스트
             Container(
-                // padding: const EdgeInsets.all(16),
-                // child: FlutterCarousel(
-                //   options: CarouselOptions(
-                //     // controller: CarouselController(),
-                //     aspectRatio: 4 / 3,
-                //     // pageSnapping: false,
-                //     viewportFraction: 0.8,
-                //     initialPage: 0,
-                //     showIndicator: false,
-                //     // disableCenter: true,
-                //     // enlargeStrategy: CenterPageEnlargeStrategy.scale,
-                //   ),
-                //   items: bgList.map((i) {
-                //     final index = bgList.indexOf(i);
-                //     return Builder(
-                //       builder: (BuildContext context) {
-                //         return Container(
-                //           width: MediaQuery.of(context).size.width,
-                //           margin: const EdgeInsets.symmetric(horizontal: 6.0),
-                //           decoration: BoxDecoration(
-                //             image: DecorationImage(
-                //               image: AssetImage(i),
-                //               fit: BoxFit.cover,
-                //             ),
-                //             borderRadius:
-                //                 const BorderRadius.all(Radius.circular(10)),
-                //           ),
-                //         );
-                //       },
-                //     );
-                //   }).toList(),
-                // ),
-                ),
+              child: Container(
+                height: 240,
+                child: userBackground == null
+                    ? Center(
+                        child: CircularProgressIndicator(color: Colors.white))
+                    : userBackground!.isEmpty
+                        ? Center(
+                            child: Text(
+                              '보유한 배경이 없습니다',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: userBackground!.length < 10
+                                ? userBackground!.length
+                                : 10,
+                            itemBuilder: (BuildContext context, int index) {
+                              final background = userBackground![index];
+                              // print(background);
+                              return Container(
+                                margin: EdgeInsets.only(right: 10),
+                                width: 200,
+                                // height: 50,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    20,
+                                  ),
+                                  color: Colors.white,
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/background/${background['itemFileName']}',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+              ),
+            ),
+
             SizedBox(height: 20),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '스티커',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
             // 스티커 텍스트
-            Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '스티커',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                  //아이콘 누르면 배경이나 스티커 리스트로 모달띄우기
-                  // GestureDetector(
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => TabMenuItemDetail(
-                  //           textTitle: '스티커',
-                  //           // type: false,
-                  //           itemList: imageList,
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  //   child: const Icon(
-                  //     Icons.arrow_forward_ios_rounded,
-                  //     color: Colors.white,
-                  //   ),
-                  // )
-                ],
+            Expanded(
+              child: Container(
+                child: userSticker == null
+                    ? Center(
+                        child: CircularProgressIndicator(color: Colors.white))
+                    : userSticker!.isEmpty
+                        ? Center(
+                            child: Text(
+                              '보유한 스티커가 없습니다',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            // itemCount: userSticker!.length < 10
+                            //     ? userSticker!.length
+                            //     : 10,
+                            itemCount: userSticker?.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final sticker = userSticker![index];
+                              // print(background);
+                              return Container(
+                                padding: EdgeInsets.all(5),
+                                width: 120,
+                                margin: EdgeInsets.only(right: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    20,
+                                  ),
+                                  color: Colors.white.withOpacity(0.2),
+                                  // image: DecorationImage(
+                                  //   // scale: 0.2,
+                                  //   // opacity: 0.2,
+                                  //   image: AssetImage(
+                                  //     'assets/${sticker['itemFileName']}',
+                                  //   ),
+                                  //   fit: BoxFit.cover,
+                                  // ),
+                                ),
+                                child: Image(
+                                  image: AssetImage(
+                                      'assets/${sticker['itemFileName']}'),
+                                ),
+                              );
+                            },
+                          ),
               ),
             ),
             SizedBox(height: 20),

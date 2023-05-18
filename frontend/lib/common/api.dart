@@ -45,18 +45,6 @@ class DataServerDio {
           return handler.next(options);
         },
       ),
-      // print('통신 토큰 확인$token');
-      // dio.interceptors.add(InterceptorsWrapper(
-      //   onRequest: (options, handler) {
-      //     return handler.next(options);
-      //   },
-      //   onResponse: (options, handler) {
-      //     return handler.next(options);
-      //   },
-      //   onError: (DioError error, handler) {
-      //     print("inteceptor: ${error.response!.statusCode}");
-      //   },
-      // ));
     );
 
     return dio;
@@ -71,8 +59,10 @@ class Paths {
   static const signup = 'user/signup'; // 회원 가입
   static const myPage = 'mypage/getData'; // 유저페이지
   static const myPagePost = 'mypage/getPost'; // 유저페이지
-  static const myPageItem = 'mypage/getItem'; // 유저페이지
+  static const myPageItem = 'mypage/getBackground'; // 유저페이지 배경
+  static const myPageSticker = 'mypage/getSticker'; // 유저페이지 스티커
   static const deleteUser = 'mypage/deleteUser';
+  static const changeUser = 'mypage/changeNickname'; // 닉네임 변경
   static const deleteComment = '/api/comment/';
   static const getComments = '/api/comment/comments/';
 }

@@ -29,33 +29,49 @@ class _PopupMenuState extends State<PopupMenu> {
         color: Colors.white,
       ),
       onSelected: (value) {
+        // 로그아웃
         if (value == 0) {
           storage.deleteAccessToken();
           storage.deleteRefreshToken();
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const LoginPage()));
-        } else if (value == -1) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false,
+          );
+        }
+        // 회원탈퇴
+        else if (value == -1) {
           try {
             ProfileApi().UserDelete();
             print('삭제 명령 고고');
-            storage.deleteAccessToken();
-            storage.deleteRefreshToken();
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const LoginPage()));
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+              (route) => false,
+            );
           } catch (e) {
             print(e);
           }
-          ;
         }
-        setState(() {
-          selectedItem = value.toString();
-        });
-        Navigator.pushNamed(context, value.toString());
+        // 닉네임 변경
+        else if (value == 1) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const ChangeNickname();
+            },
+          );
+        }
+        // setState(() {
+        //   selectedItem = value.toString();
+        // });
+        // Navigator.pushNamed(context, value.toString());
       },
       itemBuilder: (BuildContext bc) {
         return const [
           PopupMenuItem(
-            // onTap: ChangeNickname(),
+            value: 1,
             child: Text('닉네임변경'),
           ),
           PopupMenuItem(
