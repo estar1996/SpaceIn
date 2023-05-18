@@ -38,6 +38,7 @@ public class CommentController {
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);
         Long userId = user.getId();
+        userService.changeUserMoney(userId,50);
         String commentText = commentMakeDto.getCommentText();
         Long postId = commentMakeDto.getPostId();
 

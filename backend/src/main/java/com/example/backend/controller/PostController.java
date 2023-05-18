@@ -84,11 +84,13 @@ public class PostController {
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);
         Long userId = user.getId();
+
         if (region == null) {
             throw new RuntimeException("Region not found for the given region name: " + regionName);
         }
         Long regionId = region.getRegionId();
 
+        userService.changeUserMoney(userId,100);
         PostDto postDto = new PostDto(userId, postContent, postLatitude, postLongitude, regionId);
         String url = s3Service.upload(multipartFile, "spacein", "space");
         PostResponseDto newPost = postService.savePost(url, postDto);
