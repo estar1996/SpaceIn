@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/page/post_detail/data/post_detail_data.dart';
 
 class CommentModal extends StatefulWidget {
   final int postId;
@@ -24,70 +25,28 @@ class _CommentModalState extends State<CommentModal> {
   @override
   void initState() {
     super.initState();
-    getComments();
-    // getCurrentUserName();
+    _commentController.clear(); // 댓글 입력 필드 초기화
+    _getComments(); // 댓글 목록 다시 불러오기
+    // FocusScope.of(context).unfocus(); // 키보드 포커스 해제
   }
 
-  // Future getCurrentUserName() async {
-  //   // 현재 사용자의 이름을 가져오는 비동기 함수
-  //   try {
-  //     final response = await dio
-  //         .get('http://k8a803.p.ssafy.io:8080/api/user/${widget.userId}');
-  //     if (response.statusCode == 200) {
-  //       final data = response.data;
-  //       setState(() {
-  //         currentUserName = data['userName']; // 현재 사용자의 이름 업데이트
-  //       });
-  //     } else {
-  //       // Handle the error scenario
-  //     }
-  //   } catch (e) {
-  //     // Handle any exceptions
-  //   }
-  // }
-
-  // 댓글 조회 통신
-  Future getComments() async {
+  Future _postComment() async {
     try {
-      final response = await dio.get(
-          'http://k8a803.p.ssafy.io:8080/api/comment/comments/${widget.postId}');
-      if (response.statusCode == 200) {
-        setState(() {
-          comments = response.data; // comments에 response.data를 할당
-          userName = []; // userName 배열을 초기화
-          for (var comment in comments!) {
-            userName!
-                .add(comment['userName']); // 각 댓글의 userName을 userName 배열에 추가
-          }
-        });
-      } else {
-        // Handle the error scenario
-      }
-    } catch (e) {
-      // Handle any exceptions
+      await CommentApi().addComment(_commentController.text, widget.postId);
+    } catch (error) {
+      print(error);
     }
   }
 
-  // 댓글 작성 통신
-  Future<void> postComment(BuildContext context, String text) async {
-    print(text);
+  Future _getComments() async {
     try {
-      await dio.post('http://k8a803.p.ssafy.io:8080/api/comment', data: {
-        'postId': widget.postId,
-        'userId': widget.userId, // Replace with the actual user ID
-        'commentText': text,
-      });
-      FocusScope.of(context).unfocus(); // Hide the keyboard
-      _commentController.clear();
+      final response = await CommentApi().commentList(widget.postId);
       setState(() {
-        comments = [
-          ...comments!,
-          {'userName': currentUserName, 'commentText': text}
-        ];
-        userName!.add(currentUserName); // 작성한 댓글의 사용자 이름을 userName 배열에 추가
+        comments = response['commentText'];
+        userName = response['userNickcname'];
       });
-    } catch (e) {
-      // Handle any exceptions
+    } catch (error) {
+      print(error);
     }
   }
 
@@ -137,7 +96,7 @@ class _CommentModalState extends State<CommentModal> {
               hintText: '댓글을 입력하세요',
               suffixIcon: IconButton(
                 onPressed: () {
-                  postComment(context, _commentController.text);
+                  _postComment();
                 },
                 icon: const Icon(Icons.create_rounded),
               ),

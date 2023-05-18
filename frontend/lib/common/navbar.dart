@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/common/colors.dart';
-import 'package:frontend/page/homepage/home_page.dart';
+import 'package:frontend/page/homepage/home_geum.dart';
 import 'package:frontend/page/profile/profile_page.dart';
 import 'package:frontend/src/map/mainmap.dart';
 import 'package:frontend/page/shop/shop_page.dart';

@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/common/api.dart';
 import 'package:frontend/common/secure_storage.dart';
-import 'package:frontend/page/homepage/home_page.dart';
+import 'package:frontend/page/homepage/home_geum.dart';
 import 'package:frontend/page/login/data/login_data.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
