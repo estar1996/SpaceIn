@@ -19,7 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 @Service
@@ -151,10 +154,21 @@ public class PostService {
 
     public List<String> getPostContentsByRegionName(String regionName) {
         Region region = regionRepository.findByRegionName(regionName);
-        return postRepository.findByRegion(region).stream()
+        List<Post> posts = postRepository.findByRegion_RegionId(region.getRegionId());
+        return posts.stream()
                 .map(Post::getPostContent)
                 .collect(Collectors.toList());
     }
+    public String combinePostContents(List<String> postContents) {
+        return String.join(" ", postContents);
+    }
+    public String getCombinedPostContentsByRegionName(String regionName) {
+        List<String> postContents = getPostContentsByRegionName(regionName);
+        return combinePostContents(postContents);
+    }
+
+
+
     public boolean isLikeExists (Long userId, Long postId){
         return postLikeRepository.existsByUser_IdAndPost_PostId(userId, postId);
     }

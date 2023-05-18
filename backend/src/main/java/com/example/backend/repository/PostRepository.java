@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     List<Post> findByPostLatitudeAndPostLongitude(@Param("latitude") double latitude, @Param("longitude") double longitude);
 
 
-    @Query(value = "SELECT * FROM post WHERE region_id = :regionId", nativeQuery = true)
+    @Query(value = "SELECT * FROM post WHERE region_region_id = :regionRegionId", nativeQuery = true)
     List<Post> findByRegion(Region region);
-
+    List<Post> findByRegion_RegionId(Long regionId);
 }
