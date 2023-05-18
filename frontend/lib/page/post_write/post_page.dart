@@ -107,12 +107,12 @@ class _PostPageState extends State<PostPage> {
     'assets/background/bg_sky2.png',
     'assets/background/bg_twinkle.png',
     'assets/background/bg_paper.png',
-    'assets/background/bg_whiteSpace.png',
+    'assets/background/bg_whitespace.png',
   ];
   List<Widget> bgButtonList = [];
 
   bool _isColorImage = true;
-  String _backgroundColorImage = 'assets/background/whiteSpace.png';
+  String _backgroundColorImage = 'assets/background/whitespace.png';
 
   final dio = Dio();
   List<Widget> imageOnscreen = [];
