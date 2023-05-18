@@ -107,12 +107,12 @@ class _PostPageState extends State<PostPage> {
     'assets/background/bg_sky2.png',
     'assets/background/bg_twinkle.png',
     'assets/background/bg_paper.png',
-    'assets/background/bg_whiteSpace.png',
+    'assets/background/bg_whitespace.png',
   ];
   List<Widget> bgButtonList = [];
 
   bool _isColorImage = true;
-  String _backgroundColorImage = 'assets/background/whiteSpace.png';
+  String _backgroundColorImage = 'assets/background/bg_whitespace.png';
 
   final dio = Dio();
   List<Widget> imageOnscreen = [];
@@ -279,8 +279,8 @@ class _PostPageState extends State<PostPage> {
       desiredAccuracy: geolocatorEnums.LocationAccuracy.high,
     );
     final NLatLng newPosition = NLatLng(
-      double.parse(position.latitude.toStringAsFixed(5)),
-      double.parse(position.longitude.toStringAsFixed(5)),
+      double.parse(position.latitude.toStringAsFixed(4)),
+      double.parse(position.longitude.toStringAsFixed(4)),
     );
     // print('position은 ${newPosition.latitude}, ${newPosition.longitude}');
 
