@@ -5,7 +5,6 @@ import 'package:frontend/common/api.dart';
 
 class PostDetailApi {
   // final dio = DioServices()
-  final dio = DataServerDio.instance();
   final userId = 1;
   final postId = 1;
 
@@ -15,6 +14,7 @@ class PostDetailApi {
     print(text);
     if (text != '') {
       try {
+        final dio = await DataServerDio.instance();
         final formData = {
           "postId": postId,
           "userId": userId,
@@ -32,6 +32,7 @@ class PostDetailApi {
   //댓글 조회
   Future commentList(int postId) async {
     try {
+      final dio = await DataServerDio.instance();
       final response = await dio.get('${Paths.comments}/comments/$postId');
       return response.data;
     } catch (e) {

@@ -3,6 +3,7 @@ import 'package:frontend/common/background.dart';
 import 'package:frontend/common/secure_storage.dart';
 import 'package:frontend/page/homepage/home_page.dart';
 import 'package:frontend/page/login/data/login_data.dart';
+import 'package:frontend/page/login/login_page.dart';
 
 class JoinPage extends StatefulWidget {
   final String token;
@@ -31,13 +32,11 @@ class _JoinPageState extends State<JoinPage> {
     final response =
         await LoginApi().joinUser(widget.token, nickname, widget.userEmail);
     print(nickname);
-    await _storage.setAccessToken(response["token"]);
-    await _storage.setRefreshToken(response["refreshToken"]);
-    // await _storage.setAccessToken(token);
+    print(response);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => HomePage(),
+        builder: (context) => LoginPage(),
       ),
     );
   }
