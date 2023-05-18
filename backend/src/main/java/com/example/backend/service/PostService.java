@@ -19,9 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 @Service
@@ -189,6 +187,29 @@ public class PostService {
             post.setPostLikes(post.getPostLikes() + value);  // 새로운 postlikes 값을 설정
             postRepository.save(post);  // 변경된 내용을 저장
         }
+    }
+
+    public Set<PostResponseDto> randomPickPosts (Long userId, double latitude, double longitude) {
+        int totalPosts = getAllPosts().size();
+        Set<PostResponseDto> randomPosts = new HashSet<>();
+        List<PostResponseDto> allPosts = getAllPosts();
+        Random random = new Random();
+
+        for (int i = 0; i < 5; i++) {
+            int randomIndex = random.nextInt(totalPosts);
+            PostResponseDto randomPost = allPosts.get(randomIndex);
+            Double postLatitude = randomPost.getPostLatitude();
+            Double postLongitude = randomPost.getPostLongitude();
+            boolean isInside = isWithinRadius(postLatitude, postLongitude, latitude, longitude,0.3);
+            System.out.println(isInside);
+            System.out.println(randomPost.getUserId());
+            if (!Objects.equals(randomPost.getUserId(), userId) && !isInside){
+//                    ) { // 쓴 사람과 아이디가 다르고, 유저범위안에 있지 않을때
+                // 이부분 알고리즘만 수정하면 됨.
+                randomPosts.add(randomPost);
+            }
+        }
+        return randomPosts;
     }
 }
 

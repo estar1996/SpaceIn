@@ -25,4 +25,10 @@ public class Item {
     @Column
     private String itemName;
 
+    @Column
+    private String itemFileName;
+
+    @Column
+    private String itemType;
+
 }

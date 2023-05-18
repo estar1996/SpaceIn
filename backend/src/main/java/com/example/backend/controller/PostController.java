@@ -22,6 +22,7 @@ import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,10 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -48,9 +46,9 @@ public class PostController {
     private NaverReverseGeocodingService naverReverseGeocodingService;
 
     @Autowired
-
     private RegionRepository regionRepository;
 
+    @Autowired
     private LoginService loginService;
 
     @Autowired
@@ -183,5 +181,27 @@ public class PostController {
         // 프론트의 경우, 최초 가져올 때 해당 유저가 좋아요 했는지 아닌지 여부를 전달
         // 반환값을 받으면 버튼 모양을 좋아요 <-> 좋아요 취소로 변경하도록 설정
     }
+
+    @GetMapping("/randomPost")
+    public ResponseEntity<Map<String, Object>> Randompost(@RequestHeader String Authorization, @RequestParam double latitude, @RequestParam double longitude) {
+        // 유저 불러옴
+
+        String token = Authorization.substring(7);
+        System.out.println(token);
+        Claims claims = loginService.getClaimsFromToken(token);
+        System.out.println(claims);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long userId = user.getId();
+
+        Set<PostResponseDto> randomPosts = postService.randomPickPosts(userId, latitude, longitude);
+
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("postList", randomPosts);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
 
 }
