@@ -430,6 +430,7 @@ class _MainMapState extends State<MainMap> {
               });
               print("네이버 맵 로딩됨!");
               _getCurrentLocation();
+              _loadMarkers();
             },
             options: const NaverMapViewOptions(
               locationButtonEnable: true,

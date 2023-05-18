@@ -36,9 +36,13 @@ class _LoginPageState extends State<LoginPage> {
 
   // token 발급
   Future<void> _handleSignIn(context) async {
-    await _googleSignIn.signOut(); // 기존의 사용자 인증 정보 삭제
+    print('너뭐냐?');
     try {
+      await _googleSignIn.signOut(); // 기존의 사용자 인증 정보 삭제
+      print('로그인 시도');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      print('구글 로그인 성공');
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
       print('$googleUser 구글유저');
@@ -53,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(),
+          builder: (context) => const HomePage(),
         ),
       );
     } catch (error) {
