@@ -22,6 +22,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:frontend/common/navbar.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
+import 'package:frontend/common/secure_storage.dart';
+
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
 
@@ -40,75 +42,10 @@ class _PostPageState extends State<PostPage> {
   bool _isBlackhole = false;
   bool _isBlackholeActive = false;
   Position? _currentPosition;
-  List<String> imageList = [
-    'assets/Asteroid.png',
-    'assets/Astronaut-1.png',
-    'assets/Astronaut-2.png',
-    'assets/Astronaut-3.png',
-    'assets/Astronaut-4.png',
-    'assets/background.png',
-    'assets/Comet.png',
-    'assets/Planet & Rocket.png',
-    'assets/Planet-1.png',
-    'assets/Planet-2.png',
-    'assets/Planet-3.png',
-    'assets/Planet-4.png',
-    'assets/Planet-5.png',
-    'assets/Planet-6.png',
-    'assets/Planet-7.png',
-    'assets/Planet-8.png',
-    'assets/Planet-9.png',
-    'assets/Planet-10.png',
-    'assets/Planet-11.png',
-    'assets/Planet-12.png',
-    'assets/Planet-13.png',
-    'assets/Planet-14.png',
-    'assets/Planet-15.png',
-    'assets/Rocket-1.png',
-    'assets/Rocket-2.png',
-    'assets/Rover.png',
-    'assets/SolarSystem.png',
-    'assets/SpaceSatellite.png',
-    'assets/SpaceShip-1.png',
-    'assets/SpaceShip-2.png',
-    'assets/Star1.png',
-    'assets/Star2_1.png',
-    'assets/Star2_2.png',
-    'assets/Star2_3.png',
-    'assets/Star2_4.png',
-    'assets/Star2_5.png',
-    'assets/Star2.png',
-    'assets/Telescope.png',
-    'assets/UFO.png',
-  ];
+  List<String> imageList = [];
   List<Widget> stickerList = [];
 
-  List<String> bgList = [
-    'assets/background/bg_bluered.png',
-    'assets/background/bg_box.png',
-    'assets/background/bg_check.png',
-    'assets/background/bg_check2.png',
-    'assets/background/bg_cute.png',
-    'assets/background/bg_flower.png',
-    'assets/background/bg_gradient.png',
-    'assets/background/bg_gradient2.png',
-    'assets/background/bg_greenaura.png',
-    'assets/background/bg_letter.png',
-    'assets/background/bg_letter2.png',
-    'assets/background/bg_line.png',
-    'assets/background/bg_mountain.png',
-    'assets/background/bg_newspaper.png',
-    'assets/background/bg_night.png',
-    'assets/background/bg_ocean.png',
-    'assets/background/bg_pearl.png',
-    'assets/background/bg_photoedit.png',
-    'assets/background/bg_photoedit2.png',
-    'assets/background/bg_sky.png',
-    'assets/background/bg_sky2.png',
-    'assets/background/bg_twinkle.png',
-    'assets/background/bg_paper.png',
-    'assets/background/bg_whitespace.png',
-  ];
+  List<String> bgList = [];
   List<Widget> bgButtonList = [];
 
   bool _isColorImage = true;
@@ -140,22 +77,50 @@ class _PostPageState extends State<PostPage> {
   void initState() {
     // 초기 이미지 목록에 따른 버튼을 생성하기 위한 state 저장
 
-    for (String ads in imageList) {
-      stickerList.add(stickerButton(
-        address: ads,
-        addSticker: _addSticker,
-      ));
-    }
-
-    for (String ads in bgList) {
-      bgButtonList.add(backgroundButton(
-          address: ads,
-          changeBackgroundImage: _changeBackgroundImage,
-          changeBackgroundType: _changeBackgroundType));
-    }
+    checkItem();
 
     fToast = FToast();
     fToast.init(context);
+  }
+
+  void checkItem() async {
+    Response response;
+    final token = await SecureStorage().getAccessToken();
+    // print('이게 토큰이야 $token');
+
+    response = await dio.get(
+      'http://k8a803.p.ssafy.io:8080/shop/checkitem',
+      options: Options(headers: {'Authorization': token}),
+    );
+
+    setState(() {
+      for (Map<String, dynamic> dt in response.data['itemList']) {
+        if (dt['haveItem']) {
+          if (dt['itemFileName'][0] == 'b' && dt['itemFileName'][1] == 'g') {
+            // print('이거 bg $dt');
+            bgList.add('assets/background/${dt['itemFileName']}');
+          } else {
+            // print('이건 image $dt');
+            imageList.add('assets/${dt['itemFileName']}');
+          }
+        }
+      }
+
+      for (String ads in imageList) {
+        stickerList.add(stickerButton(
+          address: ads,
+          addSticker: _addSticker,
+        ));
+      }
+
+      for (String ads in bgList) {
+        bgButtonList.add(backgroundButton(
+            address: ads,
+            changeBackgroundImage: _changeBackgroundImage,
+            changeBackgroundType: _changeBackgroundType));
+      }
+    });
+    // print('이게 지금 데이터야 ${response.data['itemList']}');
   }
 
   @override
@@ -282,11 +247,11 @@ class _PostPageState extends State<PostPage> {
       double.parse(position.latitude.toStringAsFixed(4)),
       double.parse(position.longitude.toStringAsFixed(4)),
     );
+
+    final token = await SecureStorage().getAccessToken();
     // print('position은 ${newPosition.latitude}, ${newPosition.longitude}');
 
     FormData formData = FormData();
-
-    formData.fields.add(const MapEntry('userId', '1'));
 
     formData.fields.add(MapEntry('postContent', text));
 
@@ -305,7 +270,10 @@ class _PostPageState extends State<PostPage> {
         'http://k8a803.p.ssafy.io:8080/api/posts',
         data: formData,
         options: Options(
-          headers: {'Content-Type': 'multipart/form-data'},
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': token,
+          },
         ),
       );
 
@@ -371,9 +339,9 @@ class _PostPageState extends State<PostPage> {
   Future<Uint8List> testComporessList(Uint8List list) async {
     var result = await FlutterImageCompress.compressWithList(
       list,
-      minHeight: 2152,
-      minWidth: 1536,
-      quality: 40,
+      minHeight: 1920,
+      minWidth: 1080,
+      quality: 50,
     );
     print(list.length);
     print(result.length);
