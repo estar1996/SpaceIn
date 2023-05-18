@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:frontend/page/shop/shop_test.dart';
 
 class shopBottom extends StatefulWidget {
   final String address;
@@ -115,7 +116,14 @@ class _shopBottomState extends State<shopBottom> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ShopTest(),
+                        ),
+                      );
+                    },
                     style: ButtonStyle(
                         minimumSize: MaterialStateProperty.all<Size>(
                             const Size(150, 50)),

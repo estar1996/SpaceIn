@@ -57,9 +57,9 @@ class _TabMenuItemState extends State<TabMenuItem> {
         child: Column(
           children: [
             // 배경 텍스트
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: const [
                 Text(
                   '배경',
                   style: TextStyle(
@@ -69,14 +69,14 @@ class _TabMenuItemState extends State<TabMenuItem> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // 배경 이미지 리스트
             Container(
-              child: Container(
+              child: SizedBox(
                 height: 240,
                 child: userBackground == null
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(color: Colors.white))
                     : userBackground!.isEmpty
                         ? Center(
@@ -97,7 +97,7 @@ class _TabMenuItemState extends State<TabMenuItem> {
                               final background = userBackground![index];
                               // print(background);
                               return Container(
-                                margin: EdgeInsets.only(right: 10),
+                                margin: const EdgeInsets.only(right: 10),
                                 width: 200,
                                 // height: 50,
                                 decoration: BoxDecoration(
@@ -118,10 +118,10 @@ class _TabMenuItemState extends State<TabMenuItem> {
               ),
             ),
 
-            SizedBox(height: 20),
-            const Row(
+            const SizedBox(height: 20),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: const [
                 Text(
                   '스티커',
                   style: TextStyle(
@@ -131,14 +131,14 @@ class _TabMenuItemState extends State<TabMenuItem> {
                 ),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             // 스티커 텍스트
             Expanded(
               child: Container(
                 child: userSticker == null
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(color: Colors.white))
                     : userSticker!.isEmpty
                         ? Center(
@@ -160,9 +160,9 @@ class _TabMenuItemState extends State<TabMenuItem> {
                               final sticker = userSticker![index];
                               // print(background);
                               return Container(
-                                padding: EdgeInsets.all(5),
+                                padding: const EdgeInsets.all(5),
                                 width: 120,
-                                margin: EdgeInsets.only(right: 10),
+                                margin: const EdgeInsets.only(right: 10),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(
                                     20,
@@ -186,7 +186,7 @@ class _TabMenuItemState extends State<TabMenuItem> {
                           ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // 스티커 이미지 리스트
             Container(
                 // child: FlutterCarousel(

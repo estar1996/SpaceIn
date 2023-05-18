@@ -55,6 +55,14 @@ class _shopDetailState extends State<shopDetail> {
       'itemId': itemId,
     };
 
+    for (int i = 0; i < widget.imageList.length; i++) {
+      if (widget.imageList[i]['itemId'] == itemId) {
+        setState(() {
+          ImageBtn.removeAt(i);
+        });
+      }
+    }
+
     final token = await SecureStorage().getAccessToken();
     Response response =
         await dio.post('http://k8a803.p.ssafy.io:8080/shop/buyitem',
