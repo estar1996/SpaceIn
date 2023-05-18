@@ -334,8 +334,8 @@ class _MainMapState extends State<MainMap> {
       final double latitude = post.postLatitude;
       final double longitude = post.postLongitude;
       final NLatLng position = NLatLng(
-        double.parse(latitude.toStringAsFixed(5)),
-        double.parse(longitude.toStringAsFixed(5)),
+        double.parse(latitude.toStringAsFixed(4)),
+        double.parse(longitude.toStringAsFixed(4)),
       );
       final int likes = post.postLikes;
       const myMarkerIcon = NOverlayImage.fromAssetImage(
