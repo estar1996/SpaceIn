@@ -17,13 +17,7 @@ public class Item {
     private Long itemId;
 
     @Column
-    private String itemImg;
-
-    @Column
     private Integer itemPrice;
-
-    @Column
-    private String itemName;
 
     @Column
     private String itemFileName;

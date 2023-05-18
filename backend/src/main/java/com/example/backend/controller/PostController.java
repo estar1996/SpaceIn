@@ -96,9 +96,14 @@ public class PostController {
     }
 
     //유저별 게시물 조회
-    @GetMapping("/{userId}/posts")
+    @GetMapping("/myPosts")
     @Operation(summary = "유저별 게시물 조회", description = "<strong> 사용자 ID</strong>를 통해 사용자별 게시물을 조회한다.")
-    public List<PostResponseDto> getUserPost(@PathVariable Long userId) {
+    public List<PostResponseDto> getUserPost(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long userId = user.getId();
         return postService.getUserPost(userId);
     }
 
