@@ -4,6 +4,7 @@ import 'package:frontend/common/api.dart';
 import 'package:frontend/common/secure_storage.dart';
 import 'package:frontend/page/homepage/home_geum.dart';
 import 'package:frontend/page/login/data/login_data.dart';
+import 'package:frontend/page/login/join_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
     scopes: [
       'email',
       'https://www.googleapis.com/auth/contacts.readonly',
+      // 'https://www.googleapis.com/auth/userinfo.profile',
     ],
   );
 
@@ -36,42 +38,55 @@ class _LoginPageState extends State<LoginPage> {
 
   // token 발급
   Future<void> _handleSignIn(context) async {
-    print('너뭐냐?');
+    await _googleSignIn.signOut(); //
     try {
-      await _googleSignIn.signOut(); // 기존의 사용자 인증 정보 삭제
-      print('로그인 시도');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      print('구글 로그인 성공');
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
-      print('$googleUser 구글유저');
-      final String? accessToken = googleAuth.accessToken;
+      print('구글유저 정보 = $googleUser');
+      String? accessToken = googleAuth.accessToken;
+      print(accessToken);
+
       final response =
           await LoginApi().SendToken(accessToken, context, googleUser.email);
-      print(response);
-      await _storage.setAccessToken(response["token"]);
-      await _storage.setRefreshToken(response["refreshToken"]);
-      print('이동안해?');
-      // await _storage.setAccessToken(token);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
-      );
+
+      // 토큰 만료시 재인증
+      if (response == 500) {
+        print('accessToken이 만료되었습니다. 다시 인증을 요청합니다.');
+        await _googleSignIn.disconnect();
+        await _googleSignIn.signIn();
+        final GoogleSignInAccount? refreshedUser = _googleSignIn.currentUser;
+        final GoogleSignInAuthentication refreshedAuth =
+            await refreshedUser!.authentication;
+        accessToken = refreshedAuth.accessToken;
+      } else if (response == 401) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => JoinPage(
+                    token: accessToken,
+                    userEmail: googleUser.email,
+                  )),
+        );
+      }
+
+      // 로그인 성공!
+      else {
+        await _storage.setAccessToken(response["token"]);
+        await _storage.setRefreshToken(response["refreshToken"]);
+        print('이동안해?');
+        // await _storage.setAccessToken(token);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ),
+        );
+      }
     } catch (error) {
       print("Error occured while signing in: $error");
     }
   }
-
-  // Future<void> signOutAndSignIn() async {
-  //   await _googleSignIn.signOut(); // 기존의 사용자 인증 정보 삭제
-  //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-  //   final GoogleSignInAuthentication googleAuth =
-  //       await googleUser!.authentication;
-  // 새로운 사용자 인증 정보 받아오기
-  // ...
 
   @override
   Widget build(BuildContext context) {
@@ -106,10 +121,6 @@ class _LoginPageState extends State<LoginPage> {
                   InkWell(
                     onTap: () {
                       _handleSignIn(context);
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => HomePage()),
-                      // ); // _handleSignIn(context);
                     },
                     child: Container(
                       width: 300,

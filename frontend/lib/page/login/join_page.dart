@@ -6,7 +6,7 @@ import 'package:frontend/page/login/data/login_data.dart';
 import 'package:frontend/page/login/login_page.dart';
 
 class JoinPage extends StatefulWidget {
-  final String token;
+  final String? token;
   final String userEmail;
   const JoinPage({Key? key, required this.token, required this.userEmail})
       : super(key: key);
