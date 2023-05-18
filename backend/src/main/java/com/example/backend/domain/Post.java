@@ -24,7 +24,8 @@ public class Post {
     private Long postId;
     @ManyToOne
     private User user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_region_id")
     private Region region;
     private String fileUrl;
 
