@@ -138,8 +138,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
-  // bool isLoading = false; // 로딩 상태 변수 추가
-  Future<int> fetchCommentCount(int postId) async {
+  bool isLoading = false; // 로딩 상태 변수 추가
+  Future<void> fetchCommentCount(int postId) async {
+    if (isLoading) return; // 이미 로딩 중이라면 중복 호출 방지
+
     try {
       isLoading = true; // 로딩 시작
       final response = await Dio().get(

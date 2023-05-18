@@ -19,7 +19,7 @@ class _CommentModalState extends State<CommentModal> {
 
   Dio dio = Dio();
   final TextEditingController _commentController = TextEditingController();
-  String? currentUserName; // 현재 사용자의 이름을 저장할 변수
+  // String? currentUserName; // 현재 사용자의 이름을 저장할 변수
 
   @override
   void initState() {
