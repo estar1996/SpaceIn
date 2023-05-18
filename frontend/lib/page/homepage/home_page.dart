@@ -38,75 +38,75 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         body: Background(
             child: Stack(
-              children: [
-                Positioned(
-                  top: 50,
-                  left: 50,
-                  width: 300,
-                  height: 300,
-                  child: IconButton(
-                    icon: Image.asset('assets/SolarSystem.png'),
-                    onPressed: () async {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const NavBar(index: 2),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Positioned(
-                  top: 300,
-                  left: 300,
-                  width: 100,
-                  height: 100,
-                  child: IconButton(
-                    icon: Image.asset('assets/Rocket-2.png'),
-                    onPressed: () async {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const NavBar(index: 3),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                //MAP PAGE
-                Positioned(
-                  top: 600,
-                  left: 150,
-                  width: 300,
-                  height: 300,
-                  child: IconButton(
-                    icon: Image.asset('assets/Planet-2.png'),
-                    onPressed: () async {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const NavBar(index: 1),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                // WRITE PAGE
-                Positioned(
-                  top: 300,
-                  left: 000,
-                  width: 300,
-                  height: 300,
-                  child: IconButton(
-                    icon: Image.asset('assets/Telescope.png'),
-                    onPressed: () {
-                      // 클릭 시 이동할 페이지
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const PostPage()),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            )),
+          children: [
+            Positioned(
+              top: 50,
+              left: 50,
+              width: 300,
+              height: 300,
+              child: IconButton(
+                icon: Image.asset('assets/SolarSystem.png'),
+                onPressed: () async {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const NavBar(index: 2),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Positioned(
+              top: 300,
+              left: 300,
+              width: 100,
+              height: 100,
+              child: IconButton(
+                icon: Image.asset('assets/Rocket-2.png'),
+                onPressed: () async {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const NavBar(index: 3),
+                    ),
+                  );
+                },
+              ),
+            ),
+            //MAP PAGE
+            Positioned(
+              top: 600,
+              left: 150,
+              width: 300,
+              height: 300,
+              child: IconButton(
+                icon: Image.asset('assets/Planet-2.png'),
+                onPressed: () async {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const NavBar(index: 1),
+                    ),
+                  );
+                },
+              ),
+            ),
+            // WRITE PAGE
+            Positioned(
+              top: 300,
+              left: 000,
+              width: 300,
+              height: 300,
+              child: IconButton(
+                icon: Image.asset('assets/Telescope.png'),
+                onPressed: () {
+                  // 클릭 시 이동할 페이지
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PostPage()),
+                  );
+                },
+              ),
+            ),
+          ],
+        )),
       ),
     );
   }

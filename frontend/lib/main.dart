@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/page/homepage/home_page.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:frontend/page/login/login_page.dart';
 
 void main() async {
   // await dotenv.load(fileName: 'assets/config/.env'); // .env 파일 로드
@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Flutter Demo',
-      home: HomePage(),
+      home: LoginPage(),
     );
   }
 }
