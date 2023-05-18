@@ -31,6 +31,7 @@ public class LoginController {
         Map<String,String> userData = loginService.socialLogin(accessToken, registrationId); //코드를 받아 서버에 요청하여 이메일을 받아옴.
         String email = userData.get("email");
         String userImg = userData.get("userImg");
+        System.out.println(userImg);
 
         //유저이미지 저장
 
