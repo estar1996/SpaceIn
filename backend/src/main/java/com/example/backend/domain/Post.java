@@ -10,7 +10,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
@@ -35,6 +37,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post")
+    private List<PostLike> likeUsers = new ArrayList<>();
+
     @Builder
     public Post(User user,Region region, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
         this.user = user;
@@ -46,5 +51,7 @@ public class Post {
         this.postLikes = postLikes;
         this.postContent = postContent;
     }
+
+
 
 }

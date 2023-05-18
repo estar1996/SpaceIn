@@ -50,11 +50,10 @@ public class LoginController {
             // 아래는 Claim이 제대로 들어갔는지 확인하는 함수(최종 시 삭제할 것)
             Claims claims = loginService.getClaimsFromToken(token);
             Map<String, String> response = new HashMap<>();
-            response.put("token", token);
+            response.put("token","Bearer "+token);
             response.put("refreshToken", refreshToken);
 
             System.out.println(claims);
-
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

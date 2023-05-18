@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
 
@@ -27,4 +27,26 @@ public class UserService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    public boolean deleteById(Long id) {
+        try {
+            userRepository.deleteById(id);
+            return true; // 삭제 성공
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // 삭제 실패
+        }
+    }
+    public void updateUserNickname(Long userId, String nickname) {
+        userRepository.updateUserNickname(userId, nickname);
+    }
+
+
+    // 아래 서비스는 미션할때 돈 주는것에서 호출
+    public void changeUserMoney(Long userId, int amount){ //userMoney를 amount만큼 변경
+        userRepository.changeUserMoney(userId, amount);
+    }
+
+
+
 }
