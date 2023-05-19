@@ -85,7 +85,7 @@ public class MyPageController {
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);
         Long id = user.getId();
-        
+
         List<ItemDto> itemDtoList = new ArrayList<>();
         Set<Item> items = userService.findItemsByUserId(id);
 
