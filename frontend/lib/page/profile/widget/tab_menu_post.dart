@@ -1,11 +1,8 @@
-import 'dart:math';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/common/colors.dart';
 import 'package:frontend/page/post_detail/post_detail_page.dart';
 import 'package:frontend/page/profile/data/profile_data.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
     as geolocatorEnums;
 

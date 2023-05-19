@@ -1,51 +1,69 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/page/post_detail/data/post_detail_data.dart';
+import 'package:dio/dio.dart';
+import 'package:frontend/common/api.dart';
 
 class CommentModal extends StatefulWidget {
   final int postId;
-  final int userId;
 
-  const CommentModal({Key? key, required this.postId, required this.userId})
-      : super(key: key);
+  const CommentModal({Key? key, required this.postId}) : super(key: key);
 
   @override
   State<CommentModal> createState() => _CommentModalState();
 }
 
 class _CommentModalState extends State<CommentModal> {
-  List<dynamic>? comments; // comments 변수를 배열로 선언
-  List<dynamic>? userName; // userName 변수를 배열로 선언
-  String? currentUserName; // 현재 사용자의 이름을 저장할 변수
+  List<dynamic>? comments;
+  List<dynamic>? userName;
+  String? currentUserName;
 
   Dio dio = Dio();
   final TextEditingController _commentController = TextEditingController();
-  // String? currentUserName; // 현재 사용자의 이름을 저장할 변수
 
   @override
   void initState() {
     super.initState();
-    _commentController.clear(); // 댓글 입력 필드 초기화
-    _getComments(); // 댓글 목록 다시 불러오기
-    // FocusScope.of(context).unfocus(); // 키보드 포커스 해제
+    _commentController.clear();
+    _getComments();
   }
 
-  Future _postComment() async {
-    try {
-      await CommentApi().addComment(_commentController.text, widget.postId);
-    } catch (error) {
-      print(error);
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _postComment() async {
+    final text = _commentController.text;
+    if (text.isNotEmpty) {
+      try {
+        final dio = DataServerDio.instance();
+        final formData = {
+          "postId": widget.postId,
+          "commentText": text,
+        };
+        final response = await dio.post(Paths.comments, data: formData);
+        print('Success! $response');
+        _commentController.clear();
+        _getComments();
+      } catch (error) {
+        print(error);
+      }
     }
   }
 
-  Future _getComments() async {
+  Future<void> _getComments() async {
     try {
-      final response = await CommentApi().commentList(widget.postId);
+      final dio = DataServerDio.instance();
+      final response = await dio.get(
+        '${Paths.getComments}${widget.postId}',
+      );
       setState(() {
-        comments = response['commentText'];
-        userName = response['userNickcname'];
+        comments = response.data;
+        print('댓글 잘가져감?');
+        print(comments);
       });
     } catch (error) {
+      print('댓글 가져오기 오류');
       print(error);
     }
   }
@@ -72,16 +90,15 @@ class _CommentModalState extends State<CommentModal> {
           Expanded(
             child: comments?.isEmpty == true
                 ? const Center(
-                    child: Text(
-                      '작성된 댓글이 없습니다.',
-                    ),
+                    child: Text('작성된 댓글이 없습니다.'),
                   )
                 : ListView.builder(
                     itemCount: comments?.length ?? 0,
                     itemBuilder: (context, index) {
+                      final comment = comments![index];
                       return ListTile(
-                        title: Text(userName?[index] ?? ''),
-                        subtitle: Text(comments?[index]['commentText'] ?? ''),
+                        title: Text(comment['userName'] ?? ''),
+                        subtitle: Text(comment['commentText'] ?? ''),
                       );
                     },
                   ),

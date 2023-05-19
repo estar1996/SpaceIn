@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'),
+            image: AssetImage('assets/backlogo.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -86,10 +86,19 @@ class _HomePageState extends State<HomePage> {
               Text(
                 _planetlist[(_currentIndex + 1) % _planetlist.length].name,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 40,
+                style: TextStyle(
+                  fontSize: 30,
                   fontWeight: FontWeight.w100,
                   color: Colors.white,
+                  fontFamily: 'Roboto', // 로봇 우주같은 느낌의 폰트 선택
+                  letterSpacing: 2.0, // 글자 간격 조정
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.5), // 그림자 색상
+                      blurRadius: 2, // 그림자의 흐림 정도
+                      offset: const Offset(2, 2), // 그림자의 위치
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: size.height * 0.1),
