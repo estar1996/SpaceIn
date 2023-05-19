@@ -2,11 +2,9 @@ package com.example.backend.controller;
 
 
 import com.example.backend.domain.Item;
-import com.example.backend.domain.Post;
 import com.example.backend.domain.User;
 import com.example.backend.dto.ChangeNickNameRequestDto;
 import com.example.backend.dto.ItemDto;
-import com.example.backend.dto.PostDto;
 import com.example.backend.dto.PostResponseDto;
 import com.example.backend.service.ItemService;
 import com.example.backend.service.LoginService;
@@ -37,19 +35,31 @@ public class MyPageController {
     @Autowired
     PostService postService;
 
-    @GetMapping ("/getdata")
-    public ResponseEntity<Map<String, Object>> getData(@RequestHeader String token) {
+    @GetMapping ("/getData")
+    public ResponseEntity<Map<String, Object>> getData(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);
 
-        HashMap<String, Object> response = new HashMap<>(); //response를 담을 객체
+        HashMap<String, Object> response = new HashMap<>();
         // 1. 유저의 데이터들 제공
         response.put("userNickname",user.getUserNickname());
         response.put("userMoney",user.getUserMoney());
         response.put("userImage",user.getUserImg());
 
-        // 2. 유저의 아이템 중 보유한것만 보내줌
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+    @GetMapping("/getItem")
+    public ResponseEntity<Map<String, Object>> getItem(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+
+        HashMap<String, Object> response = new HashMap<>();
         List<Item> itemList = itemService.getItemList(); // 모든 아이템 리스트
         Set<Item> items = userService.findItemsByUserId(user.getId()); // 유저가 가진 아이템 리스트
 
@@ -57,12 +67,77 @@ public class MyPageController {
         for (Item item : itemList) {
             boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 boolean값을 유저의 소유여부로 판단
             if (haveItem) { // 유저가 아이템을 가지고 있을 때,
-                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemImg(), haveItem);
+                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);
                 itemDtoList.add(itemDto);
             }
         }
         response.put("itemList", itemDtoList);
-        // 3. 유저가 쓴 글 정보
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
+    @GetMapping("/getBackground")
+    public ResponseEntity<Map<String, Object>> getBackGround(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        HashMap<String, Object> response = new HashMap<>();
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long id = user.getId();
+        
+        List<ItemDto> itemDtoList = new ArrayList<>();
+        Set<Item> items = userService.findItemsByUserId(id);
+
+        for (Item item : items) {
+            boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 부분을 유저의 소유여부로 판단
+
+            if ("1".equals(item.getItemType())) {
+                System.out.println("tt");
+                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);
+                itemDtoList.add(itemDto);
+            }
+            System.out.println(itemDtoList);
+        }
+        response.put("backgroundItem", itemDtoList);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
+    @GetMapping("/getSticker")
+    public ResponseEntity<Map<String, Object>> getSticker(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        HashMap<String, Object> response = new HashMap<>();
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        Long id = user.getId();
+
+        List<ItemDto> itemDtoList = new ArrayList<>();
+        Set<Item> items = userService.findItemsByUserId(id);
+
+        for (Item item : items) {;
+            boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 부분을 유저의 소유여부로 판단
+            if ("2".equals(item.getItemType())) {
+                System.out.println("tt");
+                ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);
+                itemDtoList.add(itemDto);
+            }
+        }
+        response.put("stickerItem", itemDtoList);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
+    @GetMapping("/getPost")
+    public ResponseEntity<Map<String, Object>> getPost(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
+        Claims claims = loginService.getClaimsFromToken(token);
+        String email = claims.get("sub", String.class);
+        User user = userService.getUserByEmail(email);
+        HashMap<String, Object> response = new HashMap<>();
 
         List<PostResponseDto> myPostList = new ArrayList<>(); // 유저가 쓴 글을 집어넣는 리스트
         List<PostResponseDto> postResponseDtoList = postService.getAllPosts();
@@ -71,19 +146,17 @@ public class MyPageController {
                 myPostList.add(postResponseDto);
             }
         }
-
         response.put("postList", myPostList);
-
-        // 4. 미션?
-
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response);
+
     }
 
-    // 회원탈퇴
+        // 회원탈퇴
     @PostMapping("/deleteUser")
-    public ResponseEntity<Map<String, Object>> deleteUser(@RequestHeader String token){
+    public ResponseEntity<Map<String, Object>> deleteUser(@RequestHeader String Authorization) {
+        String token = Authorization.substring(7);
         HashMap<String, Object> response = new HashMap<>();
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
@@ -102,11 +175,12 @@ public class MyPageController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(response);
         }
-    };
+    }
 
     // 닉네임변경
     @PostMapping("/changeNickname")
-    public ResponseEntity<Map<String, Object>> deleteUser(@RequestHeader String token, @RequestBody ChangeNickNameRequestDto request) {
+    public ResponseEntity<Map<String, Object>> deleteUser(@RequestHeader String Authorization, @RequestBody ChangeNickNameRequestDto request) {
+        String token = Authorization.substring(7);
         HashMap<String, Object> response = new HashMap<>();
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);

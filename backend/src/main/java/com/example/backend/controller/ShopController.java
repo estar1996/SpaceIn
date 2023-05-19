@@ -37,9 +37,10 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
 //            imagePrice: int}
 //    ],
 //    }
-    @PostMapping("/checkitem")
-    public ResponseEntity<HashMap<String,Object>> checkItem(@RequestHeader String token) {
+    @GetMapping("/checkitem")
+    public ResponseEntity<HashMap<String,Object>> checkItem(@RequestHeader String Authorization) {
         //header의 token을 받아 유저정보 파악
+        String token = Authorization.substring(7);
         List<?> mylist = new ArrayList<>();
 
         Claims claims = loginService.getClaimsFromToken(token);
@@ -64,7 +65,7 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
             System.out.println("아이템 출력"+item.getItemId());
             boolean haveItem = itemService.hasItemWithId(item.getItemId(), items);// 이 부분을 유저의 소유여부로 판단
 
-            ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemName(), item.getItemPrice(), item.getItemImg(), haveItem);
+            ItemDto itemDto = new ItemDto(item.getItemId(), item.getItemFileName(), item.getItemPrice(), haveItem);
             itemDtoList.add(itemDto);
         }
         HashMap<String, Object> response = new HashMap<>();
@@ -77,7 +78,8 @@ public class ShopController { //조회 알고리즘, 구매 알고리즘 구현
     }
 
     @PostMapping("/buyitem")
-    public ResponseEntity<Map<String, Object>> buyItem(@RequestHeader String token, @RequestBody BuyItemRequestDto request) {
+    public ResponseEntity<Map<String, Object>> buyItem(@RequestHeader String Authorization, @RequestBody BuyItemRequestDto request) {
+        String token = Authorization.substring(7);
         Claims claims = loginService.getClaimsFromToken(token);
         String email = claims.get("sub", String.class);
         User user = userService.getUserByEmail(email);

@@ -1,5 +1,7 @@
 package com.example.backend.domain;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
@@ -20,7 +24,8 @@ public class Post {
     private Long postId;
     @ManyToOne
     private User user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_region_id")
     private Region region;
     private String fileUrl;
 
@@ -33,9 +38,13 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post")
+    private List<PostLike> likeUsers = new ArrayList<>();
+
     @Builder
-    public Post(User user, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
+    public Post(User user,Region region, String fileUrl, Double postLatitude, Double postLongitude, LocalDate postDate, Integer postLikes, String postContent) {
         this.user = user;
+        this.region = region;
         this.fileUrl = fileUrl;
         this.postLatitude = postLatitude;
         this.postLongitude = postLongitude;
@@ -43,5 +52,7 @@ public class Post {
         this.postLikes = postLikes;
         this.postContent = postContent;
     }
+
+
 
 }

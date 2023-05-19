@@ -49,8 +49,10 @@ public class CommentService {
 
     public List<CommentResponseDto> getCommentList(Long postId) {
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
+        int commentCount = commentList.size();
+
         List<CommentResponseDto> postCommnetList = commentList.stream()
-                .map(r -> new CommentResponseDto(r))
+                .map(r -> new CommentResponseDto(r,commentCount))
                 .collect(Collectors.toList());
         return postCommnetList;
     }

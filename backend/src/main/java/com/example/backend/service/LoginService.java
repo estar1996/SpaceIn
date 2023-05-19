@@ -1,7 +1,9 @@
 package com.example.backend.service;
 
 import com.example.backend.domain.RefreshToken;
+import com.example.backend.domain.User;
 import com.example.backend.repository.RefreshTokenRepository;
+import com.example.backend.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -17,7 +19,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
+import java.util.*;
 
 @Service
 public class LoginService {
@@ -35,6 +37,9 @@ public class LoginService {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
 
     private final Environment env;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -42,19 +47,29 @@ public class LoginService {
     public LoginService(Environment env) {
         this.env = env;
     }
-    public String socialLogin(String accessToken, String registrationId) {
+
+    public Map<String, String> socialLogin(String accessToken, String registrationId) {
 //        String accessToken = getAccessToken(code, registrationId);
         JsonNode userResourceNode = getUserResource(accessToken, registrationId);
+        System.out.println("accessToken = " + accessToken);
         System.out.println("userResourceNode = " + userResourceNode);
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
-        String nickname = userResourceNode.get("name").asText();
+//        String nickname = userResourceNode.get("name").asText();
+        String userImg = userResourceNode.get("picture").asText();
         System.out.println("id = " + id);
         System.out.println("email = " + email);
-        System.out.println("nickname = " + nickname);
+//        System.out.println("nickname = " + nickname);
 
-        return email; // email을 리턴해서 이걸 기준으로 로그인 처리
+        Map<String, String> userData = new HashMap<>();
+        userData.put("email", email);
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setUserImg(userImg);
+            userRepository.save(user); // 이미지 삽입
+        }
+        return userData; // email을 리턴해서 이걸 기준으로 로그인 처리
     }
 
     private String getAccessToken(String authorizationCode, String registrationId) {
@@ -81,8 +96,9 @@ public class LoginService {
     }
 
     private JsonNode getUserResource(String accessToken, String registrationId) {
-        String resourceUri = env.getProperty("oauth2."+registrationId+".resource-uri");
-
+//        String resourceUri = env.getProperty("oauth2." + registrationId + ".resource-uri");
+        String resourceUri = "https://www.googleapis.com/oauth2/v2/userinfo";
+        System.out.println(resourceUri);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity entity = new HttpEntity(headers);
@@ -128,6 +144,7 @@ public class LoginService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
     public void saveRefreshToken(String email, String token) { //토큰 저자
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setEmail(email);
@@ -136,9 +153,9 @@ public class LoginService {
     }
 
     @Transactional //트랜젝션? 더 알아보자.
-    public void deleteRefreshToken(String email){
+    public void deleteRefreshToken(String email) {
         refreshTokenRepository.deleteByEmail(email);
-        System.out.println("Loginservice.java에서 성공적으로 삭제:"+ email);
+        System.out.println("Loginservice.java에서 성공적으로 삭제:" + email);
     }
 
 }

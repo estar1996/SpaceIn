@@ -88,7 +88,7 @@ public class UserController {
             // loginService의 토큰 생성 메서드 호출하여, 엑세스토큰과 리프레시토큰을 만들어줌
             String newToken= loginService.generateToken(email,"roles");
             String newRefreshToken = loginService.generateRefreshToken(email);
-            response.put("accessToken",newToken);
+            response.put("token","Bearer "+newToken);
             response.put("newRefreshToken",newRefreshToken);
 
             loginService.deleteRefreshToken(email); //먼저 기록되어있는 refreshtoken을 삭제
