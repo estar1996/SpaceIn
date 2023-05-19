@@ -6,6 +6,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
     as geolocatorEnums;
 import 'package:dio/dio.dart';
+import 'dart:async';
+import 'package:frontend/common/api.dart';
 
 class Post {
   final int postId;
@@ -53,6 +55,7 @@ class _MainMapState extends State<MainMap> {
   Position? _currentPosition;
   Map<NLatLng, int> markerCounts = {};
   Map<NLatLng, List<String>> markerContents = {};
+  Timer? _timer;
 
   @override
   void initState() {
@@ -131,6 +134,8 @@ class _MainMapState extends State<MainMap> {
         color: const Color(0xFF9479CD).withOpacity(0.2),
       );
       _controller?.addOverlay(circleOverlay);
+      // Start the timer to periodically update the circleOverlay's position
+      _startTimerToUpdateCircleOverlay();
     }
 
     _setLocationTrackingMode(NLocationTrackingMode.follow);
@@ -140,6 +145,39 @@ class _MainMapState extends State<MainMap> {
     await _loadMarkers(); // 위치가 갱신될 때마다 마커를 다시 로드
 
     _isLoaded = true;
+  }
+
+  void _startTimerToUpdateCircleOverlay() {
+    // Cancel the previous timer if running
+    _cancelTimer();
+
+    // Start a new timer to update the circleOverlay's position every 10 seconds
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      // Update the position of the circleOverlay with the current location
+      if (_currentPosition != null) {
+        final circleOverlay = NCircleOverlay(
+          id: "current",
+          center:
+              NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          radius: 300,
+          color: const Color(0xFF9479CD).withOpacity(0.2),
+        );
+        // _controller?.deleteOverlay(info);
+        _controller?.addOverlay(circleOverlay);
+      }
+    });
+  }
+
+  void _cancelTimer() {
+    // Cancel the timer if it's active
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  @override
+  void dispose() {
+    _cancelTimer(); // Cancel the timer when the widget is disposed
+    super.dispose();
   }
 
   void _showModal(double latitude, double longitude) {
@@ -171,53 +209,64 @@ class _MainMapState extends State<MainMap> {
                   final postId = post.postId.toString();
                   final postLikes = post.postLikes.toString();
                   final item = post.postContent; // 개별 항목 가져오기
-                  var commentCount = 0;
 
-                  // 댓글 개수 가져오기
-                  fetchCommentCount(post.postId).then((comment) {
-                    // 댓글 개수 업데이트
-                    commentCount = comment;
-                  });
+                  return FutureBuilder<int>(
+                    future: fetchCommentCount(post.postId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // 로딩 중이라면 로딩 표시를 보여줌
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        // 에러가 발생했다면 에러 메시지를 표시함
+                        return const Text('댓글 개수 가져오기 오류');
+                      } else {
+                        // 댓글 개수가 정상적으로 가져와졌다면 해당 값을 표시함
+                        final commentCount = snapshot.data ?? 0;
 
-                  return ListTile(
-                    title: SizedBox(
-                      height: 50,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.length > 14
-                                  ? '${item.substring(0, 14)}...'
-                                  : item,
-                              // Rest of your Text widget properties...개별 항목 사용
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              maxLines: 1, // Display text in a single line
-                              overflow: TextOverflow
-                                  .ellipsis, // Add ellipsis if text exceeds available space
+                        return ListTile(
+                          title: SizedBox(
+                            height: 50,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.length > 14
+                                        ? '${item.substring(0, 14)}...'
+                                        : item,
+                                    // Rest of your Text widget properties...개별 항목 사용
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    maxLines:
+                                        1, // Display text in a single line
+                                    overflow: TextOverflow
+                                        .ellipsis, // Add ellipsis if text exceeds available space
+                                  ),
+                                ),
+                                const Icon(Icons.favorite_border_rounded),
+                                const SizedBox(width: 4),
+                                Text(
+                                  postLikes ?? '0',
+                                  style: const TextStyle(color: Colors.black54),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.messenger_outline_rounded),
+                                const SizedBox(width: 4),
+                                Text(
+                                  commentCount.toString(),
+                                  style: const TextStyle(color: Colors.black54),
+                                ), // 댓글 개수 표시
+                              ],
                             ),
                           ),
-                          const Icon(Icons.favorite_border_rounded),
-                          const SizedBox(width: 4),
-                          Text(
-                            postLikes ?? '0',
-                            style: const TextStyle(color: Colors.black54),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.messenger_outline_rounded),
-                          const SizedBox(width: 4),
-                          Text(
-                            commentCount.toString(),
-                            style: const TextStyle(color: Colors.black54),
-                          ), // 댓글 개수 표시
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      // 클릭 시 원하는 페이지로 이동하는 코드 작성
-                      _navigateToPage(postId, latitude, longitude); // 인덱스 값을 전달
+                          onTap: () {
+                            // 클릭 시 원하는 페이지로 이동하는 코드 작성
+                            _navigateToPage(
+                                postId, latitude, longitude); // 인덱스 값을 전달
+                          },
+                        );
+                      }
                     },
                   );
                 },
@@ -233,24 +282,21 @@ class _MainMapState extends State<MainMap> {
 
   Future<int> fetchCommentCount(int postId) async {
     try {
-      final response = await Dio().get(
-        'http://k8a803.p.ssafy.io:8080/api/comment/comments/',
-        queryParameters: {'postId': postId},
+      final dio = DataServerDio.instance();
+      final response = await dio.get(
+        '${Paths.getComments}$postId',
       );
+      print(postId);
+      print('코멘츠');
+      final List<dynamic> comments = response.data as List<dynamic>;
+      final int commentCount =
+          comments.isNotEmpty ? comments[0]['commentCount'] as int : 0;
 
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonResult = response.data as List<dynamic>;
-        final List<Post> comments = jsonResult.map((json) {
-          return Post.fromJson(json);
-        }).toList();
-        print('comment성공');
-        return comments.length;
-      } else {
-        print('Error: ${response.statusCode}');
-        return 0;
-      }
-    } catch (e) {
-      print('Error: $e');
+      print(comments[0]);
+      print(comments[0]['commentCount']);
+      return commentCount;
+    } catch (error) {
+      print(error);
       return 0;
     }
   }

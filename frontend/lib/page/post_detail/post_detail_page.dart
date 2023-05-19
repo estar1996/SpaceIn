@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/page/post_detail/comment_modal.dart';
 import 'package:dio/dio.dart';
+import 'package:frontend/common/api.dart';
 
 class Post {
   final int postId;
@@ -11,6 +12,7 @@ class Post {
   final double postLongitude;
   final String postContent;
   final int postLikes;
+  final int commentCount;
 
   Post({
     required this.postId,
@@ -21,6 +23,7 @@ class Post {
     required this.postLongitude,
     required this.postContent,
     required this.postLikes,
+    required this.commentCount,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -33,6 +36,7 @@ class Post {
       postLongitude: json['postLongitude'] as double,
       postContent: json['postContent'] as String,
       postLikes: json['postLikes'] as int,
+      commentCount: json['commentCount'] as int, // 댓글 개수 필드 초기화
     );
   }
 }
@@ -53,6 +57,44 @@ class PostDetailPage extends StatefulWidget {
   State<PostDetailPage> createState() => _PostDetailPageState();
 }
 
+class LikeButton extends StatefulWidget {
+  final int postId;
+  final Function() onLike;
+
+  const LikeButton({
+    super.key,
+    required this.postId,
+    required this.onLike,
+  });
+
+  @override
+  _LikeButtonState createState() => _LikeButtonState();
+}
+
+class _LikeButtonState extends State<LikeButton> {
+  bool isLiked = false; // Track the like state
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        isLiked ? Icons.favorite : Icons.favorite_outline_rounded,
+        color: Colors.white,
+        size: 35,
+        shadows: const <Shadow>[
+          Shadow(color: Colors.black54, blurRadius: 15.0),
+        ],
+      ),
+      onPressed: () {
+        setState(() {
+          isLiked = !isLiked; // Toggle the like state
+        });
+        widget.onLike(); // Call the onLike function when the button is pressed
+      },
+    );
+  }
+}
+
 class _PostDetailPageState extends State<PostDetailPage> {
   int currentIndex = -1; // 현재 표시 중인 게시물의 인덱스
   late PageController pageController; // PageView용 컨트롤러
@@ -67,6 +109,18 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void dispose() {
     pageController.dispose(); // Dispose the page controller
     super.dispose();
+  }
+
+  Future<void> _postLike() async {
+    try {
+      final dio = Dio();
+      final response = await dio.post(
+        'http://k8a803.p.ssafy.io:8080/api/posts/like/${widget.postId}',
+      );
+      print('Success! $response');
+    } catch (error) {
+      print(error);
+    }
   }
 
   Future<Post?> fetchPost(int postId, double latitude, double longitude) async {
@@ -104,20 +158,30 @@ class _PostDetailPageState extends State<PostDetailPage> {
       );
       if (response.statusCode == 200) {
         final List<dynamic> jsonResult = response.data as List<dynamic>;
-        final List<Post> posts = jsonResult.map((json) {
+        final List<Post> posts = [];
+
+        for (final json in jsonResult) {
           final int postLikes =
               json['postLikes'] != null ? json['postLikes'] as int : 0;
-          return Post(
-            postId: json['postId'] as int,
-            postContent: json['postContent'] as String,
+          final int postId = json['postId'] as int;
+
+          final commentCount =
+              await _getComments(postId); // Fetch comment count
+
+          final post = Post(
+            postId: postId,
+            postContent: json['postContent'] as String? ?? '',
             postLatitude: json['postLatitude'] as double,
             postLongitude: json['postLongitude'] as double,
             postLikes: postLikes,
-            fileUrl: json['fileUrl'] as String,
-            userNickname: json['userNickname'] as String,
+            fileUrl: json['fileUrl'] as String? ?? '',
+            userNickname: json['userNickname'] as String? ?? '',
             userId: json['userId'] as int,
+            commentCount: commentCount,
           );
-        }).toList();
+          posts.add(post);
+        }
+
         print('주변 게시물 가져오기 성공');
         print(posts);
         return posts;
@@ -129,26 +193,23 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
-  Future<int> fetchCommentCount(int postId) async {
+  Future<int> _getComments(int postId) async {
     try {
-      final response = await Dio().get(
-        'http://k8a803.p.ssafy.io:8080/api/comment/comments/',
-        queryParameters: {'postId': postId},
+      final dio = DataServerDio.instance();
+      final response = await dio.get(
+        '${Paths.getComments}$postId',
       );
+      print(postId);
+      print('코멘츠');
+      final List<dynamic> comments = response.data as List<dynamic>;
+      final int commentCount =
+          comments.isNotEmpty ? comments[0]['commentCount'] as int : 0;
 
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonResult = response.data as List<dynamic>;
-        final List<Map<String, dynamic>> comments =
-            jsonResult.cast<Map<String, dynamic>>();
-        final commentCount = comments.length;
-        print('댓글 개수 가져오기 성공');
-        return commentCount;
-      } else {
-        print('오류: ${response.statusCode}');
-        return 0;
-      }
-    } catch (e) {
-      print('오류: $e');
+      print(comments[0]);
+      print(comments[0]['commentCount']);
+      return commentCount;
+    } catch (error) {
+      print(error);
       return 0;
     }
   }
@@ -304,7 +365,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   Widget CommentCount(Post post) {
     return FutureBuilder<int>(
-      future: fetchCommentCount(post.postId),
+      future: _getComments(post.postId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
@@ -321,8 +382,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 ),
                 isScrollControlled: true,
                 context: context,
-                builder: (context) =>
-                    CommentModal(postId: post.postId, userId: post.userId),
+                builder: (context) => CommentModal(postId: post.postId),
               );
             },
             child: Container(
@@ -338,7 +398,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     ],
                   ),
                   Text(
-                    commentCount.toString(),
+                    post.commentCount.toString(),
                     style: const TextStyle(
                       color: Colors.white,
                       shadows: [
@@ -368,12 +428,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
       child: Column(
         children: [
-          const Icon(
-            Icons.favorite_outline_rounded,
-            color: Colors.white,
-            size: 35,
-            shadows: <Shadow>[Shadow(color: Colors.black54, blurRadius: 15.0)],
-          ),
+          LikeButton(postId: post.postId, onLike: _postLike), // 좋아요 버튼 추가
+          // const Icon(
+          //   Icons.favorite_outline_rounded,
+          //   color: Colors.white,
+          //   size: 35,
+          //   shadows: <Shadow>[Shadow(color: Colors.black54, blurRadius: 15.0)],
+          // ),
           Text(
             post.postLikes.toString(),
             style: const TextStyle(
