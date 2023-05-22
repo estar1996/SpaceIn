@@ -1,0 +1,177 @@
+
+[
+  {
+  "author": "Kim",
+  "key": "abc123",
+  "content": "This is a marker.",
+  "comments": [
+    {
+      "author": "Lee",
+      "content": "Nice marker!",
+      "timestamp": "2022-05-03T10:30:00Z"
+    },
+    {
+      "author": "Park",
+      "content": "I like it!",
+      "timestamp": "2022-05-03T10:35:00Z"
+    }
+  ],
+  "likes": 5,
+  "latitude": 37.502,
+  "longitude": 127.039,
+  "timestamp": "2022-05-03T10:00:00Z"
+},
+
+  {
+    "author": "Lee",
+    "key": "def456",
+    "content": "This is another marker.",
+    "comments": [
+      {
+        "author": "Kim",
+        "content": "Awesome!",
+        "timestamp": "2022-05-03T11:00:00Z"
+      },
+      {
+        "author": "Park",
+        "content": "Great!",
+        "timestamp": "2022-05-03T11:05:00Z"
+      },
+      {
+        "author": "Choi",
+        "content": "I want to visit there.",
+        "timestamp": "2022-05-03T11:10:00Z"
+      }
+    ],
+    "likes": 3,
+    "latitude": 37.501,
+    "longitude": 127.041,
+    "timestamp": "2022-05-03T10:30:00Z"
+  },
+  {
+    "author": "Park",
+    "key": "ghi789",
+    "content": "This is the third marker.",
+    "comments": [
+      {
+        "author": "Kim",
+        "content": "Cool!",
+        "timestamp": "2022-05-03T12:00:00Z"
+      },
+      {
+        "author": "Choi",
+        "content": "I love it!",
+        "timestamp": "2022-05-03T12:05:00Z"
+      }
+    ],
+    "likes": 7,
+    "latitude": 37.506,
+    "longitude": 127.037,
+    "timestamp": "2022-05-03T11:30:00Z"
+  },
+  {
+    "author": "Choi",
+    "key": "jkl012",
+    "content": "This is the fourth marker.",
+    "comments": [
+      {
+        "author": "Lee",
+        "content": "Amazing!",
+        "timestamp": "2022-05-03T13:00:00Z"
+      },
+      {
+        "author": "Park",
+        "content": "Incredible!",
+        "timestamp": "2022-05-03T13:05:00Z"
+      }
+    ],
+    "likes": 10,
+    "latitude": 37.503,
+    "longitude": 127.040,
+    "timestamp": "2022-05-03T12:30:00Z"
+  },
+  {
+    "author": "Choi",
+    "key": "jkl013",
+    "content": "This is the fourth marker.",
+    "comments": [
+      {
+        "author": "Lee",
+        "content": "Amazing!",
+        "timestamp": "2022-05-03T13:00:00Z"
+      },
+      {
+        "author": "Park",
+        "content": "Incredible!",
+        "timestamp": "2022-05-03T13:05:00Z"
+      }
+    ],
+    "likes": 10,
+    "latitude": 37.331,
+    "longitude": 126.831,
+    "timestamp": "2022-05-03T12:30:00Z"
+  },
+  {
+    "author": "Choi",
+    "key": "jk3032",
+    "content": "This is the fourth marker.",
+    "comments": [
+      {
+        "author": "Lee",
+        "content": "Amazing!",
+        "timestamp": "2022-05-03T13:00:00Z"
+      },
+      {
+        "author": "Park",
+        "content": "Incredible!",
+        "timestamp": "2022-05-03T13:05:00Z"
+      }
+    ],
+    "likes": 10,
+    "latitude": 37.335,
+    "longitude": 126.829,
+    "timestamp": "2022-05-03T12:30:00Z"
+  },
+  {
+    "author": "Kim",
+    "key": "abc12344",
+    "content": "realmarker.",
+    "comments": [
+      {
+        "author": "Lee",
+        "content": "Nice marker!",
+        "timestamp": "2022-05-03T10:30:00Z"
+      },
+      {
+        "author": "Park",
+        "content": "I like it!",
+        "timestamp": "2022-05-03T10:35:00Z"
+      }
+    ],
+    "likes": 5,
+    "latitude": 37.502,
+    "longitude": 127.039,
+    "timestamp": "2022-05-03T10:00:00Z"
+  },
+  {
+    "author": "Kim",
+    "key": "abc1231244",
+    "content": "마커다",
+    "comments": [
+      {
+        "author": "Lee",
+        "content": "Nice marker!",
+        "timestamp": "2022-05-03T10:30:00Z"
+      },
+      {
+        "author": "Park",
+        "content": "I like it!",
+        "timestamp": "2022-05-03T10:35:00Z"
+      }
+    ],
+    "likes": 5,
+    "latitude": 37.502,
+    "longitude": 127.039,
+    "timestamp": "2022-05-03T10:00:00Z"
+  }
+]
